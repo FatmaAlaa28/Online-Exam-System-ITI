@@ -1,0 +1,140 @@
+﻿@model ADB_Project.Models.ViewModels.StudentDashboardViewModel
+@{
+    ViewData["Title"] = "Student Dashboard";
+}
+
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <h2>Welcome, @Model.StudentName!</h2>
+            <p class="text-muted">@Model.DepartmentName - @Model.BranchName</p>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Total Courses</h5>
+                    <h2>@Model.TotalCourses</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Pending Exams</h5>
+                    <h2>@Model.PendingExams</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Completed Exams</h5>
+                    <h2>@Model.CompletedExams</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Average Grade</h5>
+                    <h2>@Model.AverageGrade.ToString("F1")%</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Upcoming Exams -->
+    <div class="row mb-4">
+        <div class="col-md-7">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5>Upcoming Exams</h5>
+                </div>
+                <div class="card-body">
+                    @if (Model.UpcomingExams.Any())
+                    {
+                        <div class="list-group">
+                            @foreach (var exam in Model.UpcomingExams)
+                            {
+                                <div class="list-group-item">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <h6 class="mb-1">@exam.ExamName</h6>
+                                            <small class="text-muted">@exam.CourseName</small>
+                                            <br />
+                                            <small>
+                                                <i class="bi bi-clock"></i> @exam.DurationMinutes min
+                                                | <i class="bi bi-question-circle"></i> @exam.TotalQuestions questions
+                                            </small>
+                                        </div>
+                                        <div>
+                                            @if (exam.HasSubmitted)
+                                            {
+                                                <span class="badge bg-success">Submitted</span>
+                                                <a asp-action="ExamResult" asp-route-examId="@exam.ExamId" class="btn btn-sm btn-info">View Result</a>
+                                            }
+                                            else if (exam.HasStarted)
+                                            {
+                                                <a asp-action="TakeExam" asp-route-id="@exam.ExamId" class="btn btn-sm btn-warning">Continue</a>
+                                            }
+                                            else
+                                            {
+                                                <a asp-action="TakeExam" asp-route-id="@exam.ExamId" class="btn btn-sm btn-primary">Start Exam</a>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="text-muted">No upcoming exams at the moment.</p>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Grades -->
+        <div class="col-md-5">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h5>Recent Grades</h5>
+                </div>
+                <div class="card-body">
+                    @if (Model.RecentGrades.Any())
+                    {
+                        <div class="list-group">
+                            @foreach (var grade in Model.RecentGrades)
+                            {
+                                <div class="list-group-item">
+                                    <div class="d-flex justify-content-between">
+                                        <div>
+                                            <h6 class="mb-1">@grade.ExamName</h6>
+                                            <small class="text-muted">@grade.CourseName</small>
+                                        </div>
+                                        <div class="text-end">
+                                            <h6 class="mb-0">
+                                                <span class="badge bg-@(grade.Percentage >= 60 ? "success" : "danger")">
+                                                    @grade.Grade
+                                                </span>
+                                            </h6>
+                                            <small>@grade.Score/@grade.MaxScore</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="text-muted">No grades yet.</p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

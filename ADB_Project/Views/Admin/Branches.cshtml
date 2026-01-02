@@ -1,0 +1,117 @@
+﻿@model IEnumerable<ADB_Project.Models.Branch>
+
+@{
+    ViewData["Title"] = "Manage Branches";
+}
+
+<div class="container mt-4">
+    <!-- Alert Messages -->
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle-fill"></i> @TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-triangle-fill"></i> @TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="bi bi-building"></i> Manage Branches</h2>
+        <a asp-action="CreateBranch" class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i> Create New Branch
+        </a>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover table-striped">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>ID</th>
+                            <th>Branch Name</th>
+                            <th>Location</th>
+                            <th>Status</th>
+                            <th style="width: 200px;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.Any())
+                        {
+                            @foreach (var branch in Model)
+                            {
+                                <tr>
+                                    <td>@branch.BranchId</td>
+                                    <td><strong>@branch.BranchName</strong></td>
+                                    <td>@(branch.Location ?? "N/A")</td>
+                                    <td>
+                                        @if (branch.IsActive)
+                                        {
+                                            <span class="badge bg-success">Active</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-secondary">Inactive</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <div class="btn-group" role="group">
+                                            <a asp-action="EditBranch" asp-route-id="@branch.BranchId"
+                                               class="btn btn-sm btn-warning" title="Edit">
+                                                <i class="bi bi-pencil-square"></i> Edit
+                                            </a>
+                                            <button type="button" class="btn btn-sm btn-danger"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#deleteModal@(branch.BranchId)"
+                                                    title="Delete">
+                                                <i class="bi bi-trash"></i> Delete
+                                            </button>
+                                        </div>
+
+                                        <!-- Delete Confirmation Modal -->
+                                        <div class="modal fade" id="deleteModal@(branch.BranchId)" tabindex="-1">
+                                            <div class="modal-dialog">
+                                                <div class="modal-content">
+                                                    <div class="modal-header bg-danger text-white">
+                                                        <h5 class="modal-title">Confirm Delete</h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        Are you sure you want to delete <strong>@branch.BranchName</strong>?
+                                                        <br /><small class="text-danger">This action cannot be undone.</small>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                        <form asp-action="DeleteBranch" method="post" style="display:inline;">
+                                                            <input type="hidden" name="branchID" value="@branch.BranchId" />
+                                                            <button type="submit" class="btn btn-danger">Yes, Delete</button>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="5" class="text-center text-muted">
+                                    <i class="bi bi-inbox" style="font-size: 2rem;"></i>
+                                    <p>No branches found.</p>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

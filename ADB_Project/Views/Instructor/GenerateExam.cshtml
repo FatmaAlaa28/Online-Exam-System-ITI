@@ -1,0 +1,96 @@
+﻿@model ADB_Project.Models.ViewModels.GenerateExamViewModel
+
+@{
+    ViewData["Title"] = "Generate New Exam";
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0"><i class="bi bi-magic"></i> Generate a New Random Exam</h4>
+                </div>
+                <div class="card-body">
+                    <p class="card-text text-muted">
+                        Fill in the details below to automatically generate a new exam with a balanced set of questions from the question bank.
+                    </p>
+                    <hr />
+
+                    <form asp-action="GenerateExam" method="post">
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+                        <div class="row g-3">
+                            <!-- Course Selection -->
+                            <div class="col-12">
+                                <label asp-for="CourseId" class="form-label"></label>
+                                <select asp-for="CourseId" class="form-select" asp-items="Model.Courses">
+                                    <option value="">-- Select a Course --</option>
+                                </select>
+                                <span asp-validation-for="CourseId" class="text-danger"></span>
+                            </div>
+
+                            <!-- Exam Name -->
+                            <div class="col-12">
+                                <label asp-for="ExamName" class="form-label"></label>
+                                <input asp-for="ExamName" class="form-control" placeholder="e.g., Midterm Exam - Chapter 1-3" />
+                                <span asp-validation-for="ExamName" class="text-danger"></span>
+                            </div>
+
+                            <!-- Number of MCQ -->
+                            <div class="col-md-6">
+                                <label asp-for="NumMCQ" class="form-label"></label>
+                                <input asp-for="NumMCQ" type="number" class="form-control" />
+                                <span asp-validation-for="NumMCQ" class="text-danger"></span>
+                            </div>
+
+                            <!-- Number of T/F -->
+                            <div class="col-md-6">
+                                <label asp-for="NumTF" class="form-label"></label>
+                                <input asp-for="NumTF" type="number" class="form-control" />
+                                <span asp-validation-for="NumTF" class="text-danger"></span>
+                            </div>
+
+                            <!-- Duration -->
+                            <div class="col-md-6">
+                                <label asp-for="DurationMinutes" class="form-label"></label>
+                                <div class="input-group">
+                                    <input asp-for="DurationMinutes" type="number" class="form-control" />
+                                    <span class="input-group-text">minutes</span>
+                                </div>
+                                <span asp-validation-for="DurationMinutes" class="text-danger"></span>
+                            </div>
+
+                            <!-- Passing Percentage -->
+                            <div class="col-md-6">
+                                <label asp-for="PassingPercentage" class="form-label"></label>
+                                <div class="input-group">
+                                    <input asp-for="PassingPercentage" type="number" step="0.01" class="form-control" />
+                                    <span class="input-group-text">%</span>
+                                </div>
+                                <span asp-validation-for="PassingPercentage" class="text-danger"></span>
+                            </div>
+
+                            <!-- Exam Date -->
+                            <div class="col-md-6">
+                                <label asp-for="ExamDate" class="form-label"></label>
+                                <input asp-for="ExamDate" type="date" class="form-control" asp-format="{0:yyyy-MM-dd}" />
+                                <span asp-validation-for="ExamDate" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="mt-4">
+                            <button type="submit" class="btn btn-primary w-100"><i class="bi bi-check-circle-fill"></i> Generate Exam</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

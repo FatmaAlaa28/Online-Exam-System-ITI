@@ -1,0 +1,88 @@
+﻿@model ADB_Project.Models.Instructor
+
+@{
+    ViewData["Title"] = "Edit Instructor";
+}
+
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header">
+            <h4 class="mb-0"><i class="bi bi-pencil-square"></i> Edit Instructor</h4>
+        </div>
+        <div class="card-body">
+            @if (Model == null)
+            {
+                <div class="alert alert-danger">Instructor not found.</div>
+                <a asp-action="Instructors" class="btn btn-secondary mt-2"><i class="bi bi-arrow-left"></i> Back to List</a>
+            }
+            else
+            {
+                <form asp-action="EditInstructor" method="post">
+                    @* ملخص لأخطاء التحقق من الصحة *@
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+                    @* حقل مخفي لمعرف المحاضر *@
+                    <input type="hidden" asp-for="InstructorId" />
+
+                    <div class="row g-3">
+                        @* حقل اسم المحاضر *@
+                        <div class="col-md-6">
+                            <label asp-for="InstructorName" class="form-label">Instructor Name</label>
+                            <input asp-for="InstructorName" class="form-control" />
+                            <span asp-validation-for="InstructorName" class="text-danger"></span>
+                        </div>
+
+                        @* حقل البريد الإلكتروني (للقراءة فقط) *@
+                        <div class="col-md-6">
+                            <label asp-for="Email" class="form-label">Email Address</label>
+                            <input asp-for="Email" type="email" class="form-control" readonly />
+                            <small class="form-text text-muted">Email cannot be changed as it's used for login.</small>
+                        </div>
+
+                        @* حقل الهاتف *@
+                        <div class="col-md-6">
+                            <label asp-for="Phone" class="form-label">Phone Number</label>
+                            <input asp-for="Phone" class="form-control" />
+                            <span asp-validation-for="Phone" class="text-danger"></span>
+                        </div>
+
+                        @* حقل تاريخ التعيين *@
+                        <div class="col-md-6">
+                            <label asp-for="HireDate" class="form-label">Hire Date</label>
+                            <input asp-for="HireDate" type="date" class="form-control" asp-format="{0:yyyy-MM-dd}" />
+                            <span asp-validation-for="HireDate" class="text-danger"></span>
+                        </div>
+
+                        @* قائمة الفروع *@
+                        <div class="col-md-6">
+                            <label asp-for="BranchId" class="form-label">Branch</label>
+                            <select asp-for="BranchId" class="form-select" asp-items="@(new SelectList(ViewBag.Branches, "BranchId", "BranchName"))">
+                                <option value="">-- Select Branch --</option>
+                            </select>
+                            <span asp-validation-for="BranchId" class="text-danger"></span>
+                        </div>
+
+                        @* حقل الحالة (نشط/غير نشط) *@
+                        <div class="col-md-6 align-self-center">
+                            <div class="form-check mt-3">
+                                <input asp-for="IsActive" class="form-check-input" />
+                                <label asp-for="IsActive" class="form-check-label">Is Active</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-4">
+                        <button type="submit" class="btn btn-warning"><i class="bi bi-save"></i> Save Changes</button>
+                        <a asp-action="Instructors" class="btn btn-secondary"><i class="bi bi-x-circle"></i> Cancel</a>
+                    </div>
+                </form>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

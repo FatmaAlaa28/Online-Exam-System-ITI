@@ -1,0 +1,68 @@
+﻿@model ADB_Project.Models.ViewModels.AdminDashboardViewModel
+@{
+    ViewData["Title"] = "Admin Dashboard";
+}
+
+<div class="container mt-4">
+    <h2 class="mb-4">Admin Dashboard</h2>
+
+    <div class="row">
+        <div class="col-md-4 mb-3">
+            <div class="card text-white bg-primary">
+                <div class="card-body">
+                    <h5>Total Students</h5>
+                    <h3>@Model.TotalStudents</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card text-white bg-success">
+                <div class="card-body">
+                    <h5>Total Instructors</h5>
+                    <h3>@Model.TotalInstructors</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card text-white bg-info">
+                <div class="card-body">
+                    <h5>Total Courses</h5>
+                    <h3>@Model.TotalCourses</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card text-white bg-warning">
+                <div class="card-body">
+                    <h5>Total Exams</h5>
+                    <h3>@Model.TotalExams</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card text-white bg-secondary">
+                <div class="card-body">
+                    <h5>Active Branches</h5>
+                    <h3>@Model.ActiveBranches</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card text-white bg-dark">
+                <div class="card-body">
+                    <h5>Active Departments</h5>
+                    <h3>@Model.ActiveDepartments</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-4">
+        <h4>Quick Actions</h4>
+        <a asp-action="Branches" class="btn btn-primary me-2">Manage Branches</a>
+        <a asp-action="Departments" class="btn btn-success me-2">Manage Departments</a>
+        <a asp-action="Instructors" class="btn btn-info me-2">Manage Instructors</a>
+        <a asp-action="Students" class="btn btn-warning me-2">Manage Students</a>
+        <a asp-action="Courses" class="btn btn-danger">Manage Courses</a>
+    </div>
+</div>

@@ -1,0 +1,310 @@
+﻿@model ADB_Project.Models.ViewModels.ExamSessionViewModel
+
+@{
+    ViewData["Title"] = "Take Exam";
+}
+
+<!-- Exam Header -->
+<div class="exam-header bg-primary text-white p-3 sticky-top">
+    <div class="container-fluid">
+        <div class="row align-items-center">
+            <div class="col-md-6">
+                <h4 class="mb-0">@Model.ExamName</h4>
+                <small>@Model.CourseName</small>
+            </div>
+            <div class="col-md-3 text-center">
+                <h5 class="mb-0">Time Remaining</h5>
+                <h3 id="exam-timer" class="mb-0">--:--</h3>
+            </div>
+            <div class="col-md-3 text-end">
+                <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#submitModal">
+                    <i class="bi bi-check-circle"></i> Submit Exam
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Exam Body -->
+<div class="container mt-4">
+    <form id="exam-form" asp-action="SubmitExam" method="post">
+        <input type="hidden" name="examId" value="@Model.ExamId" />
+
+        <!-- Progress Bar -->
+        <div class="card mb-3">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span>Progress: <span id="answered-count">0</span>/@Model.TotalQuestions</span>
+                    <span>Total Points: @Model.TotalDegree</span>
+                </div>
+                <div class="progress">
+                    <div id="progress-bar" class="progress-bar" role="progressbar" style="width: 0%"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Question Container -->
+        <div id="questions-container">
+            @for (int i = 0; i < Model.Questions.Count; i++)
+            {
+                var question = Model.Questions[i];
+                var display = i == 0 ? "block" : "none";
+
+                <div class="question-slide" data-question-index="@i" style="display: @display;">
+                    <div class="card">
+                        <div class="card-header bg-light">
+                            <div class="d-flex justify-content-between">
+                                <h5>Question @(i + 1) of @Model.TotalQuestions</h5>
+                                <span class="badge bg-info">@question.Points Points</span>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <h5 class="mb-4">@question.QuestionText</h5>
+
+                            @if (question.QuestionType == "MCQ")
+                            {
+                                @foreach (var choice in question.Choices)
+                                {
+                                    <div class="form-check mb-3">
+                                        <input class="form-check-input"
+                                               type="radio"
+                                               name="answer_@question.QuestionId"
+                                               id="choice_@choice.ChoiceId"
+                                               value="@choice.ChoiceId"
+                                               onchange="markAnswered(@i)">
+                                        <label class="form-check-label" for="choice_@choice.ChoiceId">
+                                            @choice.ChoiceText
+                                        </label>
+                                    </div>
+                                }
+                            }
+                            else // TF
+                            {
+                                @foreach (var choice in question.Choices)
+                                {
+                                    <div class="form-check mb-3">
+                                        <input class="form-check-input"
+                                               type="radio"
+                                               name="answer_@question.QuestionId"
+                                               id="choice_@choice.ChoiceId"
+                                               value="@choice.ChoiceId"
+                                               onchange="markAnswered(@i)">
+                                        <label class="form-check-label" for="choice_@choice.ChoiceId">
+                                            @choice.ChoiceText
+                                        </label>
+                                    </div>
+                                }
+                            }
+                        </div>
+                        <div class="card-footer">
+                            <div class="d-flex justify-content-between">
+                                <button type="button" class="btn btn-secondary" onclick="previousQuestion()" @(i == 0 ? "disabled" : "")>
+                                    <i class="bi bi-arrow-left"></i> Previous
+                                </button>
+
+                                @if (i < Model.TotalQuestions - 1)
+                                {
+                                    <button type="button" class="btn btn-primary" onclick="nextQuestion()">
+                                        Next <i class="bi bi-arrow-right"></i>
+                                    </button>
+                                }
+                                else
+                                {
+                                    <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#submitModal">
+                                        <i class="bi bi-check-circle"></i> Submit Exam
+                                    </button>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <!-- Quick Navigation -->
+        <div class="card mt-3">
+            <div class="card-header">
+                <h6 class="mb-0">Quick Navigation</h6>
+            </div>
+            <div class="card-body">
+                <div class="btn-group-container">
+                    @for (int i = 0; i < Model.TotalQuestions; i++)
+                    {
+                        <button type="button"
+                                class="btn btn-outline-secondary btn-sm m-1 question-nav-btn"
+                                data-question-index="@i"
+                                onclick="goToQuestion(@i)">
+                            @(i + 1)
+                        </button>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Submit Confirmation Modal -->
+        <div class="modal fade" id="submitModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Submit Exam?</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Are you sure you want to submit this exam?</p>
+                        <p class="text-warning">
+                            <i class="bi bi-exclamation-triangle"></i>
+                            You have answered <span id="modal-answered-count">0</span> out of @Model.TotalQuestions questions.
+                        </p>
+                        <p class="text-danger"><strong>This action cannot be undone!</strong></p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-danger">Yes, Submit</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <script>
+        let currentQuestionIndex = 0;
+        const totalQuestions = @Model.TotalQuestions;
+        const startTime = new Date('@Model.StartTime.ToString("o")');
+        const durationMinutes = @Model.DurationMinutes;
+        const endTime = new Date(startTime.getTime() + (durationMinutes * 60000));
+
+        let answeredQuestions = new Set();
+
+        // Timer
+        function updateTimer() {
+            const now = new Date();
+            const remaining = endTime - now;
+
+            if (remaining <= 0) {
+                timeUp();
+                return;
+            }
+
+            const minutes = Math.floor(remaining / 60000);
+            const seconds = Math.floor((remaining % 60000) / 1000);
+
+            document.getElementById('exam-timer').textContent =
+                `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+
+            // Warning color
+            if (minutes < 5) {
+                document.getElementById('exam-timer').classList.add('text-danger');
+            }
+        }
+
+        function timeUp() {
+            alert('Time is up! Submitting exam automatically...');
+            document.getElementById('exam-form').submit();
+        }
+
+        // Navigation
+        function showQuestion(index) {
+            document.querySelectorAll('.question-slide').forEach((slide, i) => {
+                slide.style.display = i === index ? 'block' : 'none';
+            });
+
+            // Update nav buttons
+            document.querySelectorAll('.question-nav-btn').forEach((btn, i) => {
+                if (i === index) {
+                    btn.classList.add('btn-primary');
+                    btn.classList.remove('btn-outline-secondary');
+                } else {
+                    btn.classList.remove('btn-primary');
+                    btn.classList.add('btn-outline-secondary');
+                }
+            });
+
+            currentQuestionIndex = index;
+        }
+
+        function nextQuestion() {
+            if (currentQuestionIndex < totalQuestions - 1) {
+                showQuestion(currentQuestionIndex + 1);
+            }
+        }
+
+        function previousQuestion() {
+            if (currentQuestionIndex > 0) {
+                showQuestion(currentQuestionIndex - 1);
+            }
+        }
+
+        function goToQuestion(index) {
+            showQuestion(index);
+        }
+
+        function markAnswered(questionIndex) {
+            answeredQuestions.add(questionIndex);
+            updateProgress();
+
+            // Mark button as answered
+            const navBtn = document.querySelector(`.question-nav-btn[data-question-index="${questionIndex}"]`);
+            if (navBtn && !navBtn.classList.contains('btn-success')) {
+                navBtn.classList.remove('btn-outline-secondary');
+                navBtn.classList.add('btn-success');
+            }
+        }
+
+        function updateProgress() {
+            const count = answeredQuestions.size;
+            const percentage = (count / totalQuestions) * 100;
+
+            document.getElementById('answered-count').textContent = count;
+            document.getElementById('modal-answered-count').textContent = count;
+            document.getElementById('progress-bar').style.width = percentage + '%';
+        }
+
+        // Check for existing answers on page load
+        document.querySelectorAll('input[type="radio"]:checked').forEach(input => {
+            const slide = input.closest('.question-slide');
+            const index = parseInt(slide.dataset.questionIndex);
+            markAnswered(index);
+        });
+
+        // Start timer
+        setInterval(updateTimer, 1000);
+        updateTimer();
+
+        // Warn before leaving
+        window.addEventListener('beforeunload', (e) => {
+            e.preventDefault();
+            e.returnValue = '';
+        });
+
+        // Auto-save every 30 seconds (optional)
+        // setInterval(() => {
+        //     // Save answers to session/localStorage
+        // }, 30000);
+    </script>
+}
+
+@section Styles {
+    <style>
+        .exam-header {
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            z-index: 1000;
+        }
+
+        .question-slide {
+            min-height: 400px;
+        }
+
+        .btn-group-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+
+        .question-nav-btn {
+            width: 45px;
+            height: 45px;
+        }
+    </style>
+}
