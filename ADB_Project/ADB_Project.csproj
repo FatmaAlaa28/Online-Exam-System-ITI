@@ -25,7 +25,6 @@
 
   <ItemGroup>
     <Folder Include="Views\Admin\Branches\" />
-    <Folder Include="Views\Admin\Student\" />
   </ItemGroup>
 
 </Project>

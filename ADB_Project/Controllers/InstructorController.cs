@@ -1,5 +1,6 @@
 ﻿using ADB_Project.Data;
 using ADB_Project.Models;
+using ADB_Project.Models.ADB_Project.Models;
 using ADB_Project.Models.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -11,15 +12,15 @@ using System.Data;
 
 namespace ADB_Project.Controllers
 {
-   // [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin")]
     public class InstructorController : Controller
     {
         private readonly OnlineExamDbContext _context;
-        private readonly UserManager<IdentityUser> _userManager;
+        private readonly UserManager<AppUser> _userManager; // Changed from IdentityUser to AppUser
 
         public InstructorController(
             OnlineExamDbContext context,
-            UserManager<IdentityUser> userManager)
+            UserManager<AppUser> userManager) // Changed from IdentityUser to AppUser
         {
             _context = context;
             _userManager = userManager;
@@ -29,7 +30,8 @@ namespace ADB_Project.Controllers
         public IActionResult Instructors()
         {
             var instructors = _context.Instructors
-                .FromSqlRaw("EXEC sp_Instructor_Select")
+                .Include(i => i.Branch)
+                .Where(i => i.IsActive == true)
                 .ToList();
 
             return View(instructors);
@@ -39,7 +41,7 @@ namespace ADB_Project.Controllers
         public IActionResult CreateInstructor()
         {
             ViewBag.Branches = _context.Branches
-                .FromSqlRaw("EXEC sp_Branch_Select")
+                .Where(b => b.IsActive == true)
                 .ToList();
 
             return View();
@@ -48,99 +50,168 @@ namespace ADB_Project.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateInstructor(Instructor instructor, string password)
         {
+            if (string.IsNullOrWhiteSpace(password))
+            {
+                ModelState.AddModelError("password", "Password is required.");
+            }
+
             if (!ModelState.IsValid)
             {
-                ViewBag.Branches = _context.Branches.ToList();
+                ViewBag.Branches = _context.Branches.Where(b => b.IsActive == true).ToList();
                 return View(instructor);
             }
 
-            // 1️⃣ Identity User
-            var user = new IdentityUser
+            try
             {
-                UserName = instructor.Email,
-                Email = instructor.Email
-            };
+                // 1️⃣ Create Identity User
+                var user = new AppUser
+                {
+                    UserName = instructor.Email,
+                    Email = instructor.Email,
+                    FullName = instructor.InstructorName,
+                    EmailConfirmed = true
+                };
 
-            var result = await _userManager.CreateAsync(user, password);
+                var result = await _userManager.CreateAsync(user, password);
 
-            if (!result.Succeeded)
+                if (!result.Succeeded)
+                {
+                    foreach (var err in result.Errors)
+                        ModelState.AddModelError("", err.Description);
+
+                    ViewBag.Branches = _context.Branches.Where(b => b.IsActive == true).ToList();
+                    return View(instructor);
+                }
+
+                await _userManager.AddToRoleAsync(user, "Instructor");
+
+                // 2️⃣ Add Instructor to database
+                instructor.CreatedDate = DateTime.Now;
+                instructor.ModifiedDate = DateTime.Now;
+                instructor.IsActive = instructor.IsActive ?? true;
+
+                _context.Instructors.Add(instructor);
+                await _context.SaveChangesAsync();
+
+                TempData["Success"] = "Instructor created successfully!";
+                return RedirectToAction(nameof(Instructors));
+            }
+            catch (Exception ex)
             {
-                foreach (var err in result.Errors)
-                    ModelState.AddModelError("", err.Description);
-
-                ViewBag.Branches = _context.Branches.ToList();
+                ModelState.AddModelError("", $"Error creating instructor: {ex.Message}");
+                ViewBag.Branches = _context.Branches.Where(b => b.IsActive == true).ToList();
                 return View(instructor);
             }
-
-            await _userManager.AddToRoleAsync(user, "Instructor");
-
-            // 2️⃣ Insert Instructor (SP)
-            _context.Database.ExecuteSqlRaw(
-                "EXEC sp_Instructor_Insert @InstructorName, @Email, @BranchID, @IsActive",
-                new SqlParameter("@InstructorName", instructor.InstructorName),
-                new SqlParameter("@Email", (object?)instructor.Email ?? DBNull.Value),
-                new SqlParameter("@BranchID", instructor.BranchId),
-                new SqlParameter("@IsActive", instructor.IsActive ?? true)
-            );
-
-            return RedirectToAction(nameof(Instructors));
         }
 
         // ================= EDIT =================
         public IActionResult EditInstructor(int id)
         {
-            ViewBag.Branches = _context.Branches.ToList();
+            ViewBag.Branches = _context.Branches
+                .Where(b => b.IsActive == true)
+                .ToList();
 
             var instructor = _context.Instructors
-                .FromSqlRaw("EXEC sp_Instructor_Select @ID",
-                    new SqlParameter("@ID", id))
-                .AsEnumerable()
-                .FirstOrDefault();
+                .Include(i => i.Branch)
+                .FirstOrDefault(i => i.InstructorId == id);
+
+            if (instructor == null)
+            {
+                TempData["Error"] = "Instructor not found.";
+                return RedirectToAction(nameof(Instructors));
+            }
 
             return View(instructor);
         }
 
         [HttpPost]
-        public IActionResult EditInstructor(Instructor instructor)
+        public async Task<IActionResult> EditInstructor(Instructor instructor)
         {
-            _context.Database.ExecuteSqlRaw(
-                "EXEC sp_Instructor_Update @ID, @InstructorName, @Email, @BranchID, @IsActive",
-                new SqlParameter("@ID", instructor.InstructorId),
-                new SqlParameter("@InstructorName", instructor.InstructorName),
-                new SqlParameter("@Email", (object?)instructor.Email ?? DBNull.Value),
-                new SqlParameter("@BranchID", instructor.BranchId),
-                new SqlParameter("@IsActive", instructor.IsActive ?? true)
-            );
+            if (!ModelState.IsValid)
+            {
+                ViewBag.Branches = _context.Branches.Where(b => b.IsActive == true).ToList();
+                return View(instructor);
+            }
 
-            return RedirectToAction(nameof(Instructors));
+            try
+            {
+                var existingInstructor = await _context.Instructors
+                    .FirstOrDefaultAsync(i => i.InstructorId == instructor.InstructorId);
+
+                if (existingInstructor == null)
+                {
+                    TempData["Error"] = "Instructor not found.";
+                    return RedirectToAction(nameof(Instructors));
+                }
+
+                // Update properties
+                existingInstructor.InstructorName = instructor.InstructorName;
+                existingInstructor.Phone = instructor.Phone;
+                existingInstructor.HireDate = instructor.HireDate;
+                existingInstructor.BranchId = instructor.BranchId;
+                existingInstructor.IsActive = instructor.IsActive;
+                existingInstructor.ModifiedDate = DateTime.Now;
+
+                await _context.SaveChangesAsync();
+
+                TempData["Success"] = "Instructor updated successfully!";
+                return RedirectToAction(nameof(Instructors));
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = $"Error updating instructor: {ex.Message}";
+                ViewBag.Branches = _context.Branches.Where(b => b.IsActive == true).ToList();
+                return View(instructor);
+            }
         }
 
         // ================= DELETE =================
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteInstructor(int id)
         {
-            var instructor = _context.Instructors
-                .FromSqlRaw("EXEC sp_Instructor_Select @ID",
-                    new SqlParameter("@ID", id))
-                .AsEnumerable()
-                .FirstOrDefault();
-
-            if (instructor != null)
+            try
             {
-                var user = await _userManager.FindByEmailAsync(instructor.Email);
-                if (user != null)
-                    await _userManager.DeleteAsync(user);
+                var instructor = await _context.Instructors
+                    .FirstOrDefaultAsync(i => i.InstructorId == id);
 
-                _context.Database.ExecuteSqlRaw(
-                    "EXEC sp_Instructor_Delete @ID",
-                    new SqlParameter("@ID", id)
-                );
+                if (instructor != null)
+                {
+                    // Delete Identity User first
+                    if (!string.IsNullOrEmpty(instructor.Email))
+                    {
+                        var user = await _userManager.FindByEmailAsync(instructor.Email);
+                        if (user != null)
+                        {
+                            await _userManager.DeleteAsync(user);
+                        }
+                    }
+
+                    // Delete Instructor from database
+                    _context.Instructors.Remove(instructor);
+                    await _context.SaveChangesAsync();
+
+                    TempData["Success"] = "Instructor deleted successfully!";
+                }
+                else
+                {
+                    TempData["Error"] = "Instructor not found.";
+                }
+            }
+            catch (DbUpdateException ex)
+            {
+                TempData["Error"] = "Cannot delete this instructor because they have related records (courses, exams).";
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = $"Error deleting instructor: {ex.Message}";
             }
 
             return RedirectToAction(nameof(Instructors));
         }
-    
-     private async Task<int?> GetCurrentInstructorIdAsync()
+
+        // ================= HELPER METHOD =================
+        private async Task<int?> GetCurrentInstructorIdAsync()
         {
             var user = await _userManager.GetUserAsync(User);
             if (user == null) return null;
@@ -152,7 +223,7 @@ namespace ADB_Project.Controllers
             return instructor?.InstructorId;
         }
 
-        // GET: /Instructor/GenerateExam
+        // ================= GENERATE EXAM =================
         [HttpGet]
         public async Task<IActionResult> GenerateExam()
         {
@@ -162,7 +233,6 @@ namespace ADB_Project.Controllers
                 return Unauthorized("Instructor account not found.");
             }
 
-            // جلب المقررات التي يدرسها المحاضر الحالي فقط
             var courses = await _context.InstructorCourses
                 .Where(ic => ic.InstructorId == instructorId)
                 .Include(ic => ic.Course)
@@ -177,7 +247,6 @@ namespace ADB_Project.Controllers
             return View(viewModel);
         }
 
-        // POST: /Instructor/GenerateExam
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> GenerateExam(GenerateExamViewModel model)
@@ -190,7 +259,6 @@ namespace ADB_Project.Controllers
 
             if (!ModelState.IsValid)
             {
-                // إذا فشل التحقق، أعد تحميل قائمة المقررات
                 var courses = await _context.InstructorCourses
                     .Where(ic => ic.InstructorId == instructorId)
                     .Include(ic => ic.Course)
@@ -200,7 +268,6 @@ namespace ADB_Project.Controllers
                 return View(model);
             }
 
-            // Parameters for the stored procedure
             var parameters = new[]
             {
                 new SqlParameter("@CourseID", model.CourseId),
@@ -223,15 +290,12 @@ namespace ADB_Project.Controllers
                 var newExamId = (int)parameters.Last().Value;
                 TempData["Success"] = $"Exam '{model.ExamName}' generated successfully with ID: {newExamId}!";
 
-                // Redirect to exam details page (which we will create next)
                 return RedirectToAction("Details", "Exams", new { id = newExamId });
             }
             catch (SqlException ex)
             {
-                // التقاط الأخطاء المخصصة من الإجراء المخزن وعرضها
                 ModelState.AddModelError(string.Empty, $"Database Error: {ex.Message}");
 
-                // إعادة تحميل قائمة المقررات عند حدوث خطأ
                 var courses = await _context.InstructorCourses
                     .Where(ic => ic.InstructorId == instructorId)
                     .Include(ic => ic.Course)
@@ -240,7 +304,6 @@ namespace ADB_Project.Controllers
                 model.Courses = new SelectList(courses, "CourseId", "CourseName");
                 return View(model);
             }
-        } }
-
+        }
     }
-
+}

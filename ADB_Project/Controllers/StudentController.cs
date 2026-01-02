@@ -1,22 +1,23 @@
 ﻿using ADB_Project.Data;
 using ADB_Project.Models;
+using ADB_Project.Models.ADB_Project.Models;
 using Microsoft.AspNetCore.Authorization; // تأكد من وجود هذا
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.Threading.Tasks; // تأكد من وجود هذا
 using System.Linq; // تأكد من وجود هذا
+using System.Threading.Tasks; // تأكد من وجود هذا
 
 namespace ADB_Project.Controllers
 {
-    [Area("Admin")] // <-- الخطوة 1: تعريف الـ Area
+   
     [Authorize(Roles = "Admin")] // تأمين الـ Controller بالكامل
     public class StudentController : Controller
     {
         private readonly OnlineExamDbContext _context;
-        private readonly UserManager<IdentityUser> _userManager;
+        private readonly UserManager<AppUser> _userManager;   // ← غيّر هنا من IdentityUser إلى AppUser
 
-        public StudentController(OnlineExamDbContext context, UserManager<IdentityUser> userManager)
+        public StudentController(OnlineExamDbContext context, UserManager<AppUser> userManager)
         {
             _context = context;
             _userManager = userManager;
@@ -58,7 +59,7 @@ namespace ADB_Project.Controllers
                 return View(student);
             }
 
-            var user = new IdentityUser { UserName = student.Email, Email = student.Email };
+            var user = new AppUser { UserName = student.Email, Email = student.Email };
             var result = await _userManager.CreateAsync(user, password);
 
             if (result.Succeeded)

@@ -15,6 +15,14 @@
         </div>
     }
 
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show">
+            @TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2><i class="bi bi-diagram-3"></i> Manage Departments</h2>
         <a asp-action="CreateDepartment" class="btn btn-primary">
@@ -61,39 +69,10 @@
                                         </a>
 
                                         <button class="btn btn-sm btn-danger"
-                                                data-bs-toggle="modal"
-                                                data-bs-target="#deleteModal@dept.DeptId">
+                                                onclick="showDeleteModal(@dept.DeptId, '@dept.DeptName')">
                                             <i class="bi bi-trash"></i> Delete
                                         </button>
                                     </div>
-
-                                    <!-- Delete Modal -->
-                                    <div class="modal fade" id="deleteModal@dept.DeptId" tabindex="-1">
-                                        <div class="modal-dialog">
-                                            <div class="modal-content">
-                                                <div class="modal-header bg-danger text-white">
-                                                    <h5>Confirm Delete</h5>
-                                                    <button class="btn-close" data-bs-dismiss="modal"></button>
-                                                </div>
-                                                <div class="modal-body">
-                                                    Are you sure you want to delete
-                                                    <strong>@dept.DeptName</strong>?
-                                                </div>
-                                                <div class="modal-footer">
-                                                    <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                                    <form asp-action="DeleteDepartment" method="post" style="display:inline;">
-                                                        @Html.AntiForgeryToken()
-                                                        <input type="hidden" name="id" value="@dept.DeptId" />
-
-                                                        <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete @dept.DeptName?')">
-                                                            <i class="bi bi-trash"></i> Delete
-                                                        </button>
-                                                    </form>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
                                 </td>
                             </tr>
                         }
@@ -111,3 +90,46 @@
         </div>
     </div>
 </div>
+
+<!-- Single Delete Modal for ALL departments -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title">Confirm Delete</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete the department:</p>
+                <p class="text-center"><strong class="fs-5" id="deptNameDisplay"></strong></p>
+                <p class="text-muted small">This action cannot be undone.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form id="deleteForm" asp-action="DeleteDepartment" method="post" style="display:inline;">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="id" id="deptIdInput" />
+                    <button type="submit" class="btn btn-danger">
+                        <i class="bi bi-trash"></i> Delete
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function showDeleteModal(deptId, deptName) {
+            // Set the department ID in the hidden input
+            document.getElementById('deptIdInput').value = deptId;
+
+            // Set the department name in the modal
+            document.getElementById('deptNameDisplay').textContent = deptName;
+
+            // Show the modal
+            var modal = new bootstrap.Modal(document.getElementById('deleteModal'));
+            modal.show();
+        }
+    </script>
+}

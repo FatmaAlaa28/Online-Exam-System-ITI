@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using System.Data;
 
 namespace ADB_Project.Controllers
 {
@@ -37,12 +38,21 @@ namespace ADB_Project.Controllers
             if (!ModelState.IsValid)
                 return View(dept);
 
-            _context.Database.ExecuteSqlRaw(
-                "EXEC sp_Department_Insert @DeptName, @Description, @IsActive",
-                new SqlParameter("@DeptName", dept.DeptName),
-                new SqlParameter("@Description", (object?)dept.Description ?? DBNull.Value),
-                new SqlParameter("@IsActive", dept.IsActive)
-            );
+            try
+            {
+                _context.Database.ExecuteSqlRaw(
+                    "EXEC sp_Department_Insert @DeptName, @Description, @IsActive",
+                    new SqlParameter("@DeptName", dept.DeptName),
+                    new SqlParameter("@Description", (object?)dept.Description ?? DBNull.Value),
+                    new SqlParameter("@IsActive", dept.IsActive)
+                );
+
+                TempData["Success"] = "Department created successfully!";
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = $"Error creating department: {ex.Message}";
+            }
 
             return RedirectToAction("Departments");
         }
@@ -55,19 +65,37 @@ namespace ADB_Project.Controllers
                 .AsEnumerable()
                 .FirstOrDefault();
 
+            if (dept == null)
+            {
+                TempData["Error"] = "Department not found.";
+                return RedirectToAction("Departments");
+            }
+
             return View(dept);
         }
 
         [HttpPost]
         public IActionResult EditDepartment(Department dept)
         {
-            _context.Database.ExecuteSqlRaw(
-                "EXEC sp_Department_Update @DeptID, @DeptName, @Description, @IsActive",
-                new SqlParameter("@DeptID", dept.DeptId),
-                new SqlParameter("@DeptName", dept.DeptName),
-                new SqlParameter("@Description", (object?)dept.Description ?? DBNull.Value),
-                new SqlParameter("@IsActive", dept.IsActive)
-            );
+            if (!ModelState.IsValid)
+                return View(dept);
+
+            try
+            {
+                _context.Database.ExecuteSqlRaw(
+                    "EXEC sp_Department_Update @DeptID, @DeptName, @Description, @IsActive",
+                    new SqlParameter("@DeptID", dept.DeptId),
+                    new SqlParameter("@DeptName", dept.DeptName),
+                    new SqlParameter("@Description", (object?)dept.Description ?? DBNull.Value),
+                    new SqlParameter("@IsActive", dept.IsActive)
+                );
+
+                TempData["Success"] = "Department updated successfully!";
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = $"Error updating department: {ex.Message}";
+            }
 
             return RedirectToAction("Departments");
         }
@@ -76,21 +104,46 @@ namespace ADB_Project.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteDepartment(int id)
         {
-            using (var command = _context.Database.GetDbConnection().CreateCommand())
+            try
             {
-                command.CommandText = "dbo.sp_Department_Delete";
-                command.CommandType = System.Data.CommandType.StoredProcedure;
-                command.Parameters.Add(new SqlParameter("@DeptID", id));
+                var connection = _context.Database.GetDbConnection();
 
-                if (_context.Database.GetDbConnection().State != System.Data.ConnectionState.Open)
+                if (connection.State != ConnectionState.Open)
                     await _context.Database.OpenConnectionAsync();
 
-                await command.ExecuteNonQueryAsync();
+                using (var command = connection.CreateCommand())
+                {
+                    command.CommandText = "sp_Department_Delete";
+                    command.CommandType = CommandType.StoredProcedure;
+
+                    var param = command.CreateParameter();
+                    param.ParameterName = "@DeptID";
+                    param.Value = id;
+                    command.Parameters.Add(param);
+
+                    await command.ExecuteNonQueryAsync();
+                }
+
+                TempData["Success"] = "Department deleted successfully!";
+            }
+            catch (SqlException ex)
+            {
+                // Handle foreign key constraint violations
+                if (ex.Number == 547) // FK constraint error
+                {
+                    TempData["Error"] = "Cannot delete this department because it has related records (students, courses, or branches).";
+                }
+                else
+                {
+                    TempData["Error"] = $"Database error: {ex.Message}";
+                }
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = $"Error deleting department: {ex.Message}";
             }
 
-            TempData["Success"] = "Department deleted successfully!";
             return RedirectToAction(nameof(Departments));
         }
     }
-
 }
