@@ -1,0 +1,93 @@
+﻿@using ADB_Project.Models.ViewModels
+@* Views/InstructorPanel/CreateMCQ.cshtml *@
+@* Also used for EditMCQ - same form *@
+@model CreateMCQVM
+
+@{
+    ViewData["Title"] = Model.QuestionId.HasValue ? "Edit MCQ" : "Create MCQ";
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h4>@ViewData["Title"]</h4>
+                </div>
+                <div class="card-body">
+                    <form asp-action="@(Model.QuestionId.HasValue ? "EditMCQ" : "CreateMCQ")" method="post">
+                        <input asp-for="QuestionId" type="hidden" />
+                        <input asp-for="CourseId" type="hidden" />
+
+                        <div asp-validation-summary="All" class="text-danger mb-3"></div>
+
+                        <div class="mb-3">
+                            <label asp-for="QuestionText" class="form-label">Question Text</label>
+                            <textarea asp-for="QuestionText" class="form-control" rows="3"
+                                      placeholder="Enter your MCQ question here..."></textarea>
+                            <span asp-validation-for="QuestionText" class="text-danger"></span>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Points" class="form-label">Points</label>
+                                <input asp-for="Points" class="form-control" type="number" min="1" max="10" />
+                                <span asp-validation-for="Points" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="DifficultyLevel" class="form-label">Difficulty</label>
+                                <select asp-for="DifficultyLevel" class="form-select" asp-items="ViewBag.Difficulties">
+                                    <option value="">Choose...</option>
+                                </select>
+                                <span asp-validation-for="DifficultyLevel" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <h6 class="mt-4 mb-3">Choices (Select 1 Correct Answer)</h6>
+                        <div class="row mb-3">
+                            <div class="col-md-3">
+                                <label class="form-label">Choice 1</label>
+                                <input asp-for="Choice1" class="form-control" placeholder="A)" />
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Choice 2</label>
+                                <input asp-for="Choice2" class="form-control" placeholder="B)" />
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Choice 3</label>
+                                <input asp-for="Choice3" class="form-control" placeholder="C)" />
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Choice 4</label>
+                                <input asp-for="Choice4" class="form-control" placeholder="D)" />
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="CorrectChoice" class="form-label fw-bold">Correct Answer</label><br>
+                            <div class="btn-group w-100" data-toggle="buttons">
+                                <input type="radio" name="CorrectChoice" id="radio1" value="1" @(Model.CorrectChoice == 1 ? "checked" : "") class="btn-check" />
+                                <label class="btn btn-outline-success @(Model.CorrectChoice == 1 ? "active" : "")" for="radio1">A</label>
+
+                                <input type="radio" name="CorrectChoice" id="radio2" value="2" @(Model.CorrectChoice == 2 ? "checked" : "") class="btn-check" />
+                                <label class="btn btn-outline-success @(Model.CorrectChoice == 2 ? "active" : "")" for="radio2">B</label>
+
+                                <input type="radio" name="CorrectChoice" id="radio3" value="3" @(Model.CorrectChoice == 3 ? "checked" : "") class="btn-check" />
+                                <label class="btn btn-outline-success @(Model.CorrectChoice == 3 ? "active" : "")" for="radio3">C</label>
+
+                                <input type="radio" name="CorrectChoice" id="radio4" value="4" @(Model.CorrectChoice == 4 ? "checked" : "") class="btn-check" />
+                                <label class="btn btn-outline-success @(Model.CorrectChoice == 4 ? "active" : "")" for="radio4">D</label>
+                            </div>
+                            <span asp-validation-for="CorrectChoice" class="text-danger d-block mt-1"></span>
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a asp-action="Questions" asp-route-courseId="@Model.CourseId" class="btn btn-secondary me-md-2">Cancel</a>
+                            <button type="submit" class="btn btn-primary">Save Question</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

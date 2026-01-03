@@ -1,0 +1,75 @@
+﻿@using ADB_Project.Models.ViewModels
+@* Views/InstructorPanel/CreateTF.cshtml *@
+@model CreateTFVM
+
+@{
+    ViewData["Title"] = Model.QuestionId.HasValue ? "Edit T/F" : "Create T/F";
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow">
+                <div class="card-header bg-success text-white">
+                    <h4>@ViewData["Title"]</h4>
+                </div>
+                <div class="card-body">
+                    <form asp-action="@(Model.QuestionId.HasValue ? "EditTF" : "CreateTF")" method="post">
+                        <input asp-for="QuestionId" type="hidden" />
+                        <input asp-for="CourseId" type="hidden" />
+
+                        <div asp-validation-summary="All" class="text-danger mb-3"></div>
+
+                        <div class="mb-3">
+                            <label asp-for="QuestionText" class="form-label">Question Text</label>
+                            <textarea asp-for="QuestionText" class="form-control" rows="3"
+                                      placeholder="Enter your True/False question here..."></textarea>
+                            <span asp-validation-for="QuestionText" class="text-danger"></span>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Points" class="form-label">Points</label>
+                                <input asp-for="Points" class="form-control" type="number" min="1" max="5" />
+                                <span asp-validation-for="Points" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="DifficultyLevel" class="form-label">Difficulty</label>
+                                <select asp-for="DifficultyLevel" class="form-select" asp-items="ViewBag.Difficulties">
+                                    <option value="">Choose...</option>
+                                </select>
+                                <span asp-validation-for="DifficultyLevel" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">Correct Answer</label><br>
+                            <div class="form-check form-check-inline">
+                                <input asp-for="IsTrueCorrect" class="form-check-input" type="radio" id="trueCorrect" value="true" />
+                                <label class="form-check-label fw-bold text-success" for="trueCorrect">
+                                    <i class="fas fa-check-circle"></i> True
+                                </label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input asp-for="IsTrueCorrect" class="form-check-input" type="radio" id="falseCorrect" value="false" />
+                                <label class="form-check-label fw-bold text-danger" for="falseCorrect">
+                                    <i class="fas fa-times-circle"></i> False
+                                </label>
+                            </div>
+                            <span asp-validation-for="IsTrueCorrect" class="text-danger d-block mt-1"></span>
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a asp-action="Questions" asp-route-courseId="@Model.CourseId" class="btn btn-secondary me-md-2">Cancel</a>
+                            <button type="submit" class="btn btn-success">Save Question</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}

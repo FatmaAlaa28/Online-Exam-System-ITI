@@ -1,0 +1,88 @@
+﻿@using ADB_Project.Models.ViewModels
+@* Views/InstructorPanel/AssignExam.cshtml *@
+@model AssignExamVM
+
+@{
+    ViewData["Title"] = "Assign Exam";
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card shadow">
+                <div class="card-header bg-warning text-dark">
+                    <h4>Assign Exam to Students</h4>
+                </div>
+                <div class="card-body">
+                    <form asp-action="AssignExam" method="post">
+                        <input asp-for="ExamId" type="hidden" />
+
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <h5>Assignment Method</h5>
+                                <div class="form-check">
+                                    <input asp-for="AssignByDepartment" class="form-check-input" id="byDept" type="radio" value="true" />
+                                    <label class="form-check-label" for="byDept">
+                                        <strong>By Department</strong> - Assign to all students in a department
+                                    </label>
+                                </div>
+                                <div class="form-check mt-2">
+                                    <input asp-for="AssignByDepartment" class="form-check-input" id="byStudents" type="radio" value="false" checked />
+                                    <label class="form-check-label" for="byStudents">
+                                        <strong>Manual Selection</strong> - Choose specific students
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="DueDate" class="form-label">Due Date</label>
+                                <input asp-for="DueDate" class="form-control" type="datetime-local" />
+                            </div>
+                        </div>
+
+                        <!-- Department Selection -->
+                        <div id="deptSection" class="mb-4 @(Model.AssignByDepartment ? "" : "d-none")">
+                            <label asp-for="DepartmentId" class="form-label">Select Department</label>
+                            <select asp-for="DepartmentId" asp-items="Model.Departments" class="form-select">
+                                <option value="">Choose department...</option>
+                            </select>
+                        </div>
+
+                        <!-- Student Selection -->
+                        <div id="studentSection" class="mb-4 @(Model.AssignByDepartment ? "d-none" : "")">
+                            <label class="form-label">Select Students</label>
+                            <select asp-for="SelectedStudentIds" multiple class="form-select" size="8" style="min-height: 200px;">
+                                @if (Model.Students != null)
+                                {
+                                    foreach (var student in Model.Students)
+                                    {
+                                        <option value="@student.Value">@student.Text</option>
+                                    }
+                                }
+                            </select>
+                            <div class="form-text">Hold Ctrl/Cmd to select multiple students</div>
+                        </div>
+
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a asp-action="ExamDetails" asp-route-examId="@Model.ExamId" class="btn btn-secondary me-md-2">Cancel</a>
+                            <button type="submit" class="btn btn-warning">Assign Exam</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Toggle sections based on assignment method
+        document.querySelectorAll('input[name="AssignByDepartment"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                document.getElementById('deptSection').classList.toggle('d-none', !this.checked);
+                document.getElementById('studentSection').classList.toggle('d-none', this.checked);
+            });
+        });
+    </script>
+}

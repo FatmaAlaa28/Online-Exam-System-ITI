@@ -1,0 +1,112 @@
+﻿@* Views/InstructorPanel/ExamDetails.cshtml *@
+@model Exam
+
+@{
+    ViewData["Title"] = "Exam Details - " + Model.ExamName;
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-lg-9">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white d-flex justify-content-between">
+                    <h3>@Model.ExamName</h3>
+                    <div>
+                        <a asp-action="AssignExam" asp-route-examId="@Model.ExamId" class="btn btn-light me-2">
+                            Assign Exam
+                        </a>
+                        <a asp-action="ExamResults" asp-route-examId="@Model.ExamId" class="btn btn-light">
+                            View Results
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <strong>Course:</strong> @Model.Course.CourseName (@Model.Course.CourseCode)
+                        </div>
+                        <div class="col-md-6">
+                            <strong>Type:</strong>
+                            <span class="badge bg-info">@Model.ExamType</span>
+                        </div>
+                        <div class="col-md-6">
+                            <strong>Total Questions:</strong> @Model.TotalQuestions
+                        </div>
+                        <div class="col-md-6">
+                            <strong>Total Degree:</strong> @Model.TotalDegree
+                        </div>
+                        <div class="col-md-6">
+                            <strong>Duration:</strong> @Model.DurationMinutes minutes
+                        </div>
+                        <div class="col-md-6">
+                            <strong>Passing Score:</strong> @Model.PassingScore (@((Model.PassingScore * 100.0 / Model.TotalDegree)?.ToString("F1"))%)
+                        </div>
+                        <div class="col-md-6">
+                            <strong>Exam Date:</strong> @Model.ExamDate?.ToString("dddd, dd MMMM yyyy")
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <h4>Questions (@Model.ExamQuestions.Count)</h4>
+                    <ol class="list-group list-group-numbered">
+                        @foreach (var eq in Model.ExamQuestions.OrderBy(eq => eq.QuestionOrder))
+                        {
+                            var q = eq.Question;
+                            <li class="list-group-item">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div class="me-3">
+                                        <strong>@q.QuestionText</strong>
+                                        <small class="text-muted d-block">(@q.QuestionType • @q.Points points • @q.DifficultyLevel)</small>
+                                    </div>
+                                    <span class="badge bg-secondary">Q@(eq.QuestionOrder)</span>
+                                </div>
+
+                                @if (q.QuestionType == "MCQ" && q.Choices.Any())
+                                {
+                                    <ul class="list-unstyled mt-3 ms-4">
+                                        @foreach (var choice in q.Choices)
+                                        {
+                                            <li class="@(choice.IsCorrect == true ? "text-success fw-bold" : "")">
+                                                @choice.ChoiceText
+                                                @(choice.IsCorrect == true ? " ✅ (Correct)" : "")
+                                            </li>
+                                        }
+                                    </ul>
+                                }
+                                else if (q.QuestionType == "TF")
+                                {
+                                    <div class="mt-2 ms-4">
+                                        Correct Answer:
+                                        <strong class="text-success">
+                                            @(q.Choices.FirstOrDefault(c => c.IsCorrect == true)?.ChoiceText ?? "N/A")
+                                        </strong>
+                                    </div>
+                                }
+                            </li>
+                        }
+                    </ol>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-3">
+            <div class="card shadow sticky-top" style="top: 20px;">
+                <div class="card-header bg-light">
+                    <h5>Quick Actions</h5>
+                </div>
+                <div class="list-group list-group-flush">
+                    <a asp-action="AssignExam" asp-route-examId="@Model.ExamId" class="list-group-item list-group-item-action">
+                        <i class="fas fa-users"></i> Assign to Students
+                    </a>
+                    <a asp-action="ExamResults" asp-route-examId="@Model.ExamId" class="list-group-item list-group-item-action">
+                        <i class="fas fa-chart-pie"></i> View Results & Stats
+                    </a>
+                    <a asp-action="MyExams" class="list-group-item list-group-item-action">
+                        <i class="fas fa-arrow-left"></i> Back to My Exams
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

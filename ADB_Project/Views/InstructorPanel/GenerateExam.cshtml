@@ -1,0 +1,98 @@
+﻿@using ADB_Project.Models.ViewModels
+@* Views/InstructorPanel/GenerateExam.cshtml *@
+@model GenerateExamViewModel
+
+@{
+    ViewData["Title"] = "Generate New Exam";
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-10 col-lg-8">
+            <div class="card shadow">
+                <div class="card-header bg-success text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-file-alt me-2"></i> Generate New Exam
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <form asp-action="GenerateExam" method="post">
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="CourseId" class="form-label fw-bold">Course</label>
+                                <select asp-for="CourseId" asp-items="Model.Courses" class="form-select">
+                                    <option value="">-- Select Course --</option>
+                                </select>
+                                <span asp-validation-for="CourseId" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="ExamName" class="form-label fw-bold">Exam Name</label>
+                                <input asp-for="ExamName" class="form-control" placeholder="e.g., Midterm Exam 2026" />
+                                <span asp-validation-for="ExamName" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="NumMCQ" class="form-label fw-bold">Number of MCQ Questions</label>
+                                <input asp-for="NumMCQ" class="form-control" type="number" min="0" value="10" />
+                                <span asp-validation-for="NumMCQ" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="NumTF" class="form-label fw-bold">Number of True/False Questions</label>
+                                <input asp-for="NumTF" class="form-control" type="number" min="0" value="5" />
+                                <span asp-validation-for="NumTF" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="DurationMinutes" class="form-label fw-bold">Duration (minutes)</label>
+                                <input asp-for="DurationMinutes" class="form-control" type="number" min="10" max="300" value="90" />
+                                <span asp-validation-for="DurationMinutes" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="PassingPercentage" class="form-label fw-bold">Passing Percentage (%)</label>
+                                <input asp-for="PassingPercentage" class="form-control" type="number" min="0" max="100" step="0.01" value="60" />
+                                <span asp-validation-for="PassingPercentage" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="ExamDate" class="form-label fw-bold">Exam Date (optional)</label>
+                            <input asp-for="ExamDate" class="form-control" type="datetime-local" />
+                            <div class="form-text">Leave empty to use current date/time.</div>
+                            <span asp-validation-for="ExamDate" class="text-danger"></span>
+                        </div>
+
+                        <hr class="my-4" />
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a asp-action="Dashboard" class="btn btn-secondary me-md-2">
+                                <i class="fas fa-arrow-left"></i> Cancel
+                            </a>
+                            <button type="submit" class="btn btn-success btn-lg">
+                                <i class="fas fa-magic me-2"></i> Generate Exam
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                @if (TempData["Success"] != null)
+                {
+                    <div class="card-footer bg-light">
+                        <div class="alert alert-success mb-0">
+                            <i class="fas fa-check-circle me-2"></i>
+                            @TempData["Success"]
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>

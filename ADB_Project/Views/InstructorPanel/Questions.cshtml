@@ -1,0 +1,87 @@
+﻿@* Views/InstructorPanel/Questions.cshtml *@
+@model List<Question>
+@{
+    ViewData["Title"] = "Course Questions";
+    int courseId = (int)ViewBag.CourseId;
+    string courseName = ViewBag.CourseName?.ToString() ?? "Unknown Course";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Questions for <strong>@courseName</strong></h2>
+        <div>
+            <a asp-action="CreateMCQ" asp-route-courseId="@courseId" class="btn btn-primary me-2">
+                <i class="fas fa-plus"></i> Add MCQ
+            </a>
+            <a asp-action="CreateTF" asp-route-courseId="@courseId" class="btn btn-success">
+                <i class="fas fa-plus"></i> Add T/F
+            </a>
+        </div>
+    </div>
+
+    @if (Model.Any())
+    {
+        <div class="table-responsive">
+            <table class="table table-striped table-hover align-middle">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Question</th>
+                        <th>Type</th>
+                        <th>Points</th>
+                        <th>Difficulty</th>
+                        <th>Created</th>
+                        <th class="text-center">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var question in Model)
+                    {
+                        <tr>
+                            <td>
+                                <strong>@question.QuestionText.Substring(0, Math.Min(50, question.QuestionText.Length))@(question.QuestionText.Length > 50 ? "..." : "")</strong>
+                            </td>
+                            <td>
+                                <span class="badge @(question.QuestionType == "MCQ" ? "bg-primary" : "bg-info")">@question.QuestionType</span>
+                            </td>
+                            <td>@question.Points</td>
+                            <td>
+                                <span class="badge bg-@(question.DifficultyLevel == "Easy" ? "success" : question.DifficultyLevel == "Medium" ? "warning" : "danger")">
+                                    @question.DifficultyLevel
+                                </span>
+                            </td>
+                            <td>@question.CreatedDate?.ToString("MMM dd")</td>
+                            <td class="text-center">
+                                <a asp-action="EditQuestion" asp-route-id="@question.QuestionId"
+                                   class="btn btn-sm btn-outline-primary me-1" title="Edit">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <form asp-action="DeleteQuestion" asp-route-id="@question.QuestionId" method="post"
+                                      class="d-inline" onsubmit="return confirm('Delete this question?')">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <div class="text-center py-5">
+            <i class="fas fa-question-circle fa-5x text-muted mb-4"></i>
+            <h4>No questions yet</h4>
+            <p class="text-muted">Start by adding your first MCQ or True/False question.</p>
+            <div>
+                <a asp-action="CreateMCQ" asp-route-courseId="@courseId" class="btn btn-primary btn-lg me-3">
+                    <i class="fas fa-list"></i> Add MCQ
+                </a>
+                <a asp-action="CreateTF" asp-route-courseId="@courseId" class="btn btn-success btn-lg">
+                    <i class="fas fa-check-double"></i> Add T/F
+                </a>
+            </div>
+        </div>
+    }
+</div>
