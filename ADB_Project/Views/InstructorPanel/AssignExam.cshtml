@@ -1,5 +1,6 @@
 ﻿@using ADB_Project.Models.ViewModels
 @model AssignExamVM
+
 @{
     ViewData["Title"] = "Assign Exam";
 }
@@ -9,7 +10,7 @@
         <div class="col-md-10">
             <div class="card shadow">
                 <div class="card-header bg-warning text-dark">
-                    <h4><i class="fas fa-users"></i> Assign Exam to Students</h4>
+                    <h4>Assign Exam to Students</h4>
                 </div>
                 <div class="card-body">
                     <form asp-action="AssignExam" method="post">
@@ -21,83 +22,71 @@
                                 <div class="form-check">
                                     <input class="form-check-input" type="radio" name="AssignByDepartment" id="byDept" value="true"
                                            @(Model.AssignByDepartment ? "checked" : "") />
-                                    <label class="form-check-label fw-semibold" for="byDept">
-                                        📁 By Department (All students in selected dept)
+                                    <label class="form-check-label fw-bold" for="byDept">
+                                        By Department
                                     </label>
                                 </div>
                                 <div class="form-check mt-2">
                                     <input class="form-check-input" type="radio" name="AssignByDepartment" id="byStudents" value="false"
                                            @(Model.AssignByDepartment == false ? "checked" : "") />
-                                    <label class="form-check-label fw-semibold" for="byStudents">
-                                        👤 Manual Selection (Choose specific students)
+                                    <label class="form-check-label fw-bold" for="byStudents">
+                                        Manual Selection
                                     </label>
                                 </div>
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label fw-semibold">Due Date (Optional)</label>
+                                <label asp-for="DueDate" class="form-label fw-bold">Due Date (Optional)</label>
                                 <input asp-for="DueDate" class="form-control" type="datetime-local" />
                             </div>
                         </div>
 
                         <!-- Department Selection -->
                         <div id="deptSection" class="mb-4 @(Model.AssignByDepartment ? "" : "d-none")">
-                            <label asp-for="DepartmentId" class="form-label fw-semibold">Select Department</label>
-                            <select asp-for="DepartmentId" class="form-select" name="DepartmentId">
-                                <option value="">Choose department...</option>
-                                @if (Model.Departments != null)
-                                {
-                                    foreach (var dept in Model.Departments)
-                                    {
-                                        <option value="@dept.Value" selected="@(dept.Selected)">@dept.Text</option>
-                                    }
-                                }
+                            <label asp-for="DepartmentId" class="form-label fw-bold">Select Department</label>
+                            <select asp-for="DepartmentId" asp-items="Model.Departments" class="form-select" name="DepartmentId">
+                                <option value="">-- Choose Department --</option>
                             </select>
                         </div>
 
-                        <!-- Student Selection - CHECKBOXES بدل SELECT MULTIPLE -->
+                        <!-- Students Checkboxes -->
                         <div id="studentSection" class="mb-4 @(Model.AssignByDepartment ? "d-none" : "")">
-                            <label class="form-label fw-semibold">Select Students (Hold Ctrl/Cmd for multiple)</label>
-                            <hr />
-                            @if (Model.Students != null && Model.Students.Count() > 0)
-                            {
-                                foreach (var item in Model.Students)
+                            <label class="form-label fw-bold">Select Students</label>
+                            <div class="border p-3" style="max-height: 400px; overflow-y: auto;">
+                                @if (Model.Students != null && Model.Students.Any())
                                 {
-                                    var studentId = int.Parse(item.Value);
-                                    var isSelected = (Model.SelectedStudentIds ?? new int[0]).Contains(studentId);
-                                    <div class="form-check">
-                                        <input type="checkbox"
-                                               name="SelectedStudentIds"
-                                               id="student_@item.Value"
-                                               value="@item.Value"
-                                               class="form-check-input"
-                                               @(isSelected ? "checked" : "") />
-                                        <label class="form-check-label" for="student_@item.Value">
-                                            @item.Text
-                                        </label>
+                                    foreach (var item in Model.Students)
+                                    {
+                                        var isChecked = (Model.SelectedStudentIds ?? Array.Empty<int>()).Contains(int.Parse(item.Value));
+                                        <div class="form-check">
+                                            <input type="checkbox"
+                                                   name="SelectedStudentIds"
+                                                   value="@item.Value"
+                                                   class="form-check-input"
+                                                   id="student_@item.Value"
+                                                   @(isChecked ? "checked" : "") />
+                                            <label class="form-check-label" for="student_@item.Value">
+                                                @item.Text
+                                            </label>
+                                        </div>
+                                    }
+                                }
+                                else
+                                {
+                                    <div class="alert alert-info">
+                                        No students are enrolled in this course yet.
                                     </div>
                                 }
-                            }
-                            else
-                            {
-                                <div class="alert alert-warning">
-                                    <i class="fas fa-exclamation-triangle me-2"></i>
-                                    No students enrolled in this course yet.
-                                    <strong>Contact admin</strong> to enroll students first.
-                                </div>
-                            }
+                            </div>
                         </div>
 
-                        @if (!ViewData.ModelState.IsValid)
-                        {
-                            <div asp-validation-summary="All" class="alert alert-danger"></div>
-                        }
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
-                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                            <a asp-action="ExamDetails" asp-route-examId="@Model.ExamId" class="btn btn-secondary me-md-2">
-                                <i class="fas fa-arrow-left"></i> Cancel
+                        <div class="text-end mt-4">
+                            <a asp-action="ExamDetails" asp-route-examId="@Model.ExamId" class="btn btn-secondary me-2">
+                                Cancel
                             </a>
-                            <button type="submit" class="btn btn-warning btn-lg px-4">
-                                <i class="fas fa-paper-plane"></i> Assign Exam Now
+                            <button type="submit" class="btn btn-warning btn-lg">
+                                Assign Exam
                             </button>
                         </div>
                     </form>
@@ -108,13 +97,12 @@
 </div>
 
 @section Scripts {
-    <partial name="_ValidationScriptsPartial" />
     <script>
-        // Toggle sections based on radio buttons
         document.querySelectorAll('input[name="AssignByDepartment"]').forEach(radio => {
-            radio.addEventListener('change', function() {
-                document.getElementById('deptSection').classList.toggle('d-none', !this.checked);
-                document.getElementById('studentSection').classList.toggle('d-none', this.checked);
+            radio.addEventListener('change', function () {
+                const isDept = this.value === 'true';
+                document.getElementById('deptSection').classList.toggle('d-none', !isDept);
+                document.getElementById('studentSection').classList.toggle('d-none', isDept);
             });
         });
     </script>

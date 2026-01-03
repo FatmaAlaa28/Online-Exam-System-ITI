@@ -1,0 +1,84 @@
+﻿@using ADB_Project.Models.ViewModels
+@* Views/StudentPanel/Dashboard.cshtml *@
+@model StudentDashboardVM
+
+@{
+    ViewData["Title"] = "Student Dashboard";
+}
+
+<div class="container mt-5">
+    <div class="row mb-5">
+        <div class="col-12 text-center">
+            <h1 class="display-5 fw-bold text-primary">Welcome Back! 👋</h1>
+            <p class="lead text-muted">Track your courses, exams, and performance</p>
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="row g-4 mb-5">
+        <div class="col-md-3">
+            <div class="card text-white bg-primary shadow-lg border-0 h-100">
+                <div class="card-body text-center p-4">
+                    <i class="fas fa-book fa-3x mb-3"></i>
+                    <h3 class="card-title mb-0">@Model.EnrolledCourses</h3>
+                    <p class="card-text fs-5">Enrolled Courses</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card text-white bg-success shadow-lg border-0 h-100">
+                <div class="card-body text-center p-4">
+                    <i class="fas fa-clipboard-list fa-3x mb-3"></i>
+                    <h3 class="card-title mb-0">@Model.AssignedExams</h3>
+                    <p class="card-text fs-5">Assigned Exams</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card text-white bg-info shadow-lg border-0 h-100">
+                <div class="card-body text-center p-4">
+                    <i class="fas fa-check-circle fa-3x mb-3"></i>
+                    <h3 class="card-title mb-0">@Model.SubmittedExams</h3>
+                    <p class="card-text fs-5">Submitted Exams</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card text-white bg-warning shadow-lg border-0 h-100">
+                <div class="card-body text-center p-4">
+                    <i class="fas fa-trophy fa-3x mb-3"></i>
+                    <h3 class="card-title mb-0">@Model.PassedExams</h3>
+                    <p class="card-text fs-5">Passed Exams</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row">
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow border-0">
+                <div class="card-body p-5 text-center">
+                    <i class="fas fa-graduation-cap fa-4x text-primary mb-4"></i>
+                    <h4>My Courses</h4>
+                    <p class="text-muted">View all courses you're enrolled in</p>
+                    <a asp-action="MyCourses" class="btn btn-outline-primary btn-lg px-5">Go to Courses</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow border-0">
+                <div class="card-body p-5 text-center">
+                    <i class="fas fa-file-alt fa-4x text-success mb-4"></i>
+                    <h4>Available Exams</h4>
+                    <p class="text-muted">Start or continue your assigned exams</p>
+                    <a asp-action="Exams" class="btn btn-success btn-lg px-5">View Exams</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

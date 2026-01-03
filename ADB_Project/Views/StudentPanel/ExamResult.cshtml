@@ -1,0 +1,91 @@
+﻿@using ADB_Project.Models.ViewModels
+@* Views/StudentPanel/ExamResult.cshtml *@
+@model ExamResultVM
+
+@{
+    ViewData["Title"] = "Exam Result";
+}
+
+<div class="container mt-5">
+    <div class="text-center mb-5">
+        <h1 class="display-5 fw-bold text-primary">
+            @if (Model.Status == "Pass")
+            {
+                <i class="fas fa-trophy text-success fa-3x mb-3 d-block"></i>
+                <span>Congratulations! 🎉</span>
+            }
+            else
+            {
+                <i class="fas fa-heart-broken text-danger fa-3x mb-3 d-block"></i>
+                <span>Better Luck Next Time!</span>
+            }
+        </h1>
+        <h2>@Model.ExamName</h2>
+        <p class="text-muted">@Model.CourseName</p>
+    </div>
+
+    <!-- Score Card -->
+    <div class="row justify-content-center mb-5">
+        <div class="col-lg-8">
+            <div class="card shadow-lg border-0">
+                <div class="card-body text-center p-5">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <h4 class="text-muted">Your Score</h4>
+                            <h2 class="fw-bold text-primary">@Model.TotalScore / @Model.MaxScore</h2>
+                        </div>
+                        <div class="col-md-4">
+                            <h4 class="text-muted">Percentage</h4>
+                            <h2 class="fw-bold @(Model.Percentage >= 50 ? "text-success" : "text-danger")">
+                                @Model.Percentage.ToString("F1")%
+                            </h2>
+                        </div>
+                        <div class="col-md-4">
+                            <h4 class="text-muted">Grade</h4>
+                            <h2 class="fw-bold @(Model.Status == "Pass" ? "text-success" : "text-danger")">
+                                @Model.Grade
+                            </h2>
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <span class="badge fs-4 px-4 py-3 @(Model.Status == "Pass" ? "bg-success" : "bg-danger")">
+                            @Model.Status
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Answers Review -->
+    <div class="row">
+        <div class="col-12">
+            <h3 class="mb-4 text-center">Your Answers Review</h3>
+            <div class="accordion" id="answersAccordion">
+                @for (int i = 0; i < Model.FormattedAnswers.Count; i++)
+                {
+                    var answer = Model.FormattedAnswers[i];
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="heading@(i)">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                    data-bs-target="#collapse@(i)">
+                                Question @(i + 1)
+                            </button>
+                        </h2>
+                        <div id="collapse@(i)" class="accordion-collapse collapse" data-bs-parent="#answersAccordion">
+                            <div class="accordion-body">
+                                <pre class="bg-light p-3 rounded" style="white-space: pre-wrap;">@answer</pre>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="text-center mt-5">
+        <a asp-action="Exams" class="btn btn-primary btn-lg px-5">
+            <i class="fas fa-arrow-left me-2"></i>Back to Exams
+        </a>
+    </div>
+</div>

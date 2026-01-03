@@ -1,0 +1,128 @@
+﻿@using ADB_Project.Models.ViewModels
+@* Views/StudentPanel/TakeExam.cshtml *@
+@model TakeExamVM
+
+@{
+    ViewData["Title"] = "Take Exam - " + Model.ExamName;
+}
+
+<div class="container mt-4">
+    <div class="card shadow-lg border-0">
+        <div class="card-header bg-primary text-white">
+            <div class="row align-items-center">
+                <div class="col">
+                    <h4 class="mb-0"><i class="fas fa-file-alt me-2"></i>@Model.ExamName</h4>
+                    <p class="mb-0">@Model.CourseName</p>
+                </div>
+                <div class="col-auto">
+                    <div class="fs-4 fw-bold" id="timer">
+                        <i class="fas fa-stopwatch me-2"></i>
+                        <span id="timeLeft">--:--</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-body">
+            <form id="examForm" asp-action="SubmitExam" method="post">
+                <input type="hidden" name="ExamId" value="@Model.ExamId" />
+
+                <div class="progress mb-4" style="height: 8px;">
+                    <div class="progress-bar bg-success" id="progressBar" role="progressbar" style="width: 0%"></div>
+                </div>
+
+                @for (int i = 0; i < Model.Questions.Count; i++)
+                {
+                    var q = Model.Questions[i];
+                    <div class="card mb-4 border">
+                        <div class="card-header bg-light">
+                            <strong>Question @(i + 1) of @Model.Questions.Count</strong>
+                            <span class="badge bg-secondary float-end">@q.Points point(s)</span>
+                        </div>
+                        <div class="card-body">
+                            <p class="lead">@q.QuestionText</p>
+
+                            <input type="hidden" name="Questions[@i].QuestionId" value="@q.QuestionId" />
+
+                            @if (q.QuestionType == "MCQ")
+                            {
+                                <div class="row">
+                                    @foreach (var choice in q.Choices)
+                                    {
+                                        <div class="col-md-6 mb-3">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio"
+                                                       name="Questions[@i].SelectedChoiceId"
+                                                       value="@choice.ChoiceId"
+                                                       id="choice_@(q.QuestionId)_@(choice.ChoiceId)"
+                                                       required>
+                                                <label class="form-check-label" for="choice_@(q.QuestionId)_@(choice.ChoiceId)">
+                                                    @choice.ChoiceText
+                                                </label>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            }
+                            else if (q.QuestionType == "TF")
+                            {
+                                <div class="btn-group" role="group">
+                                    <input type="radio" class="btn-check" name="Questions[@i].SelectedChoiceId"
+                                           id="true_@q.QuestionId" value="@q.Choices.First(c => c.ChoiceText == "True").ChoiceId" required>
+                                    <label class="btn btn-outline-success btn-lg" for="true_@q.QuestionId">True</label>
+
+                                    <input type="radio" class="btn-check" name="Questions[@i].SelectedChoiceId"
+                                           id="false_@q.QuestionId" value="@q.Choices.First(c => c.ChoiceText == "False").ChoiceId" required>
+                                    <label class="btn btn-outline-danger btn-lg" for="false_@q.QuestionId">False</label>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+
+                <div class="text-center mt-5">
+                    <button type="submit" class="btn btn-success btn-lg px-5 py-3" id="submitBtn">
+                        <i class="fas fa-paper-plane me-2"></i>Submit Exam
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const duration = @Model.DurationMinutes * 60;
+        const startTime = new Date("@Model.StartTime:yyyy-MM-ddTHH:mm:ss");
+        const endTime = new Date(startTime.getTime() + duration * 1000);
+
+        function updateTimer() {
+            const now = new Date();
+            const remaining = Math.max(0, (endTime - now) / 1000);
+
+            if (remaining <= 0) {
+                document.getElementById('timeLeft').textContent = "00:00";
+                document.getElementById('submitBtn').disabled = true;
+                alert("Time's up! Your exam has been auto-submitted.");
+                document.getElementById('examForm').submit();
+                return;
+            }
+
+            const mins = Math.floor(remaining / 60).toString().padStart(2, '0');
+            const secs = Math.floor(remaining % 60).toString().padStart(2, '0');
+            document.getElementById('timeLeft').textContent = `${mins}:${secs}`;
+
+            // Progress bar
+            const progress = ((duration * 60 - remaining) / (duration * 60)) * 100;
+            document.getElementById('progressBar').style.width = progress + '%';
+
+            // Warning at last 5 minutes
+            if (remaining <= 300) {
+                document.getElementById('timer').classList.add('text-danger', 'fw-bold');
+            }
+        }
+
+        setInterval(updateTimer, 1000);
+        updateTimer(); // initial call
+    </script>
+}
