@@ -2,8 +2,9 @@
 using ADB_Project.Models;
 using ADB_Project.Models.ViewModels;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 using System.Data;
 
 namespace ADB_Project.Controllers
@@ -461,18 +462,6 @@ namespace ADB_Project.Controllers
             return View(instructors);
         }
 
-        // ========================================
-        // COURSES CRUD
-        // ========================================
-
-        // GET: /Admin/Courses
-        public async Task<IActionResult> Courses()
-        {
-            var courses = await _context.Courses
-                .Where(c => c.IsActive == true)
-                .ToListAsync();
-
-            return View(courses);
-        }
+        
     }
 }

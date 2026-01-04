@@ -17,7 +17,36 @@ namespace ADB_Project.Controllers
         {
             _context = context;
         }
+        //public async Task<IActionResult> Departments()
+        //{
+        //    var departments = new List<Department>();
 
+        //    using (var command = _context.Database.GetDbConnection().CreateCommand())
+        //    {
+        //        command.CommandText = "EXEC sp_Department_Select";
+        //        await _context.Database.OpenConnectionAsync();
+
+        //        using (var reader = await command.ExecuteReaderAsync())
+        //        {
+        //            while (await reader.ReadAsync())
+        //            {
+        //                departments.Add(new Department
+        //                {
+        //                    DeptId = reader.GetInt32(reader.GetOrdinal("DeptID")),
+        //                    DeptName = reader.GetString(reader.GetOrdinal("DeptName")),
+        //                    Description = reader.IsDBNull(reader.GetOrdinal("Description"))
+        //                        ? null
+        //                        : reader.GetString(reader.GetOrdinal("Description")),
+        //                    IsActive = reader.GetBoolean(reader.GetOrdinal("IsActive"))
+        //                });
+        //            }
+        //        }
+
+        //        await _context.Database.CloseConnectionAsync();
+        //    }
+
+        //    return View(departments);
+        //}
         public IActionResult Departments()
         {
             var depts = _context.Departments

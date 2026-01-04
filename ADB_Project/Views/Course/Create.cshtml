@@ -1,0 +1,33 @@
+﻿@model ADB_Project.Models.Course
+
+<h2>Add Course</h2>
+
+<form asp-action="Create" method="post">
+    <div class="mb-3">
+        <label>Course Name</label>
+        <input asp-for="CourseName" class="form-control" />
+    </div>
+
+    <div class="mb-3">
+        <label>Course Code</label>
+        <input asp-for="CourseCode" class="form-control" />
+    </div>
+
+    <div class="mb-3">
+        <label>Description</label>
+        <textarea asp-for="Description" class="form-control"></textarea>
+    </div>
+
+    <div class="mb-3">
+        <label>Max Degree</label>
+        <input asp-for="MaxDegree" class="form-control" />
+    </div>
+
+    <div class="mb-3">
+        <label>Credit Hours</label>
+        <input asp-for="CreditHours" class="form-control" />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Save</button>
+    <a asp-action="Index" class="btn btn-secondary">Back</a>
+</form>
