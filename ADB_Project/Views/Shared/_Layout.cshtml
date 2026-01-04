@@ -195,6 +195,9 @@
                     <i class="fas fa-building"></i> Manage Departments
                 </a>
 
+                <a class="@(controller == "Admin" && action == "BranchDepartments" ? "active" : "")" asp-controller="Admin" asp-action="BranchDepartments">
+                    <i class="fas fa-link"></i> Assign Departments to Branches
+                </a>
                 <a class="@(controller == "Instructor" && action == "Instructors" ? "active" : "")" asp-controller="Instructor" asp-action="Instructors">
                     <i class="fas fa-user-tie"></i> Manage Instructors
                 </a>

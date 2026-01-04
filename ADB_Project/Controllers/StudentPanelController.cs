@@ -262,8 +262,8 @@ namespace ADB_Project.Controllers
     };
 
             var formattedAnswers = await _context.Database
-                .SqlQueryRaw<string>("EXEC sp_ExamStudentAnswersFormatted @ExamID, @StudentID", parameters)
-                .ToListAsync();
+     .SqlQueryRaw<FormattedAnswerVM>("EXEC sp_ExamStudentAnswersFormatted @ExamID, @StudentID", parameters)
+     .ToListAsync();
 
             var model = new ExamResultVM
             {
@@ -278,6 +278,45 @@ namespace ADB_Project.Controllers
             };
 
             return View(model);
+        }
+        // GET: /StudentPanel/MyCourses
+        public async Task<IActionResult> MyCourses()
+        {
+            var studentId = await GetCurrentStudentIdAsync();
+            if (studentId == null) return RedirectToAction("Login", "Account");
+
+            var student = await _context.Students.FindAsync(studentId.Value);
+            if (student == null) return NotFound();
+
+            // Auto-enroll in all department courses if not already
+            var deptCourses = await _context.DepartmentCourses
+                .Where(dc => dc.DeptId == student.DeptId)
+                .Select(dc => dc.CourseId)
+                .ToListAsync();
+
+            foreach (var courseId in deptCourses)
+            {
+                if (!await _context.StudentCourses.AnyAsync(sc => sc.StudentId == studentId.Value && sc.CourseId == courseId))
+                {
+                    _context.StudentCourses.Add(new StudentCourse
+                    {
+                        StudentId = studentId.Value,
+                        CourseId = courseId,
+                        EnrollmentDate = DateOnly.FromDateTime(DateTime.Now),
+                        IsActive = true
+                    });
+                }
+            }
+            await _context.SaveChangesAsync();
+
+            // Fetch enrolled courses
+            var courses = await _context.StudentCourses
+                .Where(sc => sc.StudentId == studentId.Value && sc.IsActive == true)
+                .Include(sc => sc.Course)
+                .Select(sc => sc.Course)
+                .ToListAsync();
+
+            return View(courses);
         }
     }
 }

@@ -1,0 +1,217 @@
+﻿@model ADB_Project.Models.ViewModels.AssignDepartmentToBranchViewModel
+
+@{
+    ViewData["Title"] = "Assign Department to Branch";
+}
+
+<style>
+    /* نفس الـ CSS بتاع Assign Course */
+    .page-header {
+        background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+        color: white;
+        padding: 30px;
+        border-radius: 15px;
+        margin-bottom: 30px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+    }
+
+        .page-header h2 {
+            margin: 0;
+            font-weight: 600;
+        }
+
+    .form-card {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        overflow: hidden;
+        max-width: 700px;
+        margin: 0 auto;
+    }
+
+    .form-card-header {
+        background: #f8f9fa;
+        padding: 25px 30px;
+        border-bottom: 2px solid #e9ecef;
+    }
+
+        .form-card-header h5 {
+            margin: 0;
+            color: #2c3e50;
+            font-weight: 600;
+        }
+
+    .form-card-body {
+        padding: 40px 30px;
+    }
+
+    .form-label {
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+    }
+
+        .form-label i {
+            margin-right: 8px;
+            color: #1e3c72;
+        }
+
+    .form-select, .form-control {
+        border-radius: 10px;
+        border: 2px solid #e9ecef;
+        padding: 12px 15px;
+        transition: all 0.3s ease;
+    }
+
+        .form-select:focus, .form-control:focus {
+            border-color: #1e3c72;
+            box-shadow: 0 0 0 0.2rem rgba(30, 60, 114, 0.15);
+        }
+
+    .form-group {
+        margin-bottom: 25px;
+    }
+
+    .btn-assign {
+        background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+        border: none;
+        color: white;
+        padding: 14px 40px;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 1.1rem;
+        transition: all 0.3s ease;
+        width: 100%;
+    }
+
+        .btn-assign:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(30, 60, 114, 0.3);
+            color: white;
+        }
+
+    .btn-cancel {
+        background: #6c757d;
+        border: none;
+        color: white;
+        padding: 14px 40px;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 1.1rem;
+        transition: all 0.3s ease;
+        width: 100%;
+    }
+
+        .btn-cancel:hover {
+            background: #5a6268;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(108, 117, 125, 0.3);
+            color: white;
+        }
+
+    .info-box {
+        background: #e3f2fd;
+        border-left: 4px solid #1e3c72;
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 25px;
+    }
+
+        .info-box i {
+            color: #1e3c72;
+            margin-right: 10px;
+        }
+
+        .info-box p {
+            margin: 0;
+            color: #2c3e50;
+            font-size: 0.95rem;
+        }
+
+    .button-group {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+        margin-top: 30px;
+    }
+</style>
+
+<div class="container-fluid mt-4">
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" style="border-radius: 10px; border-left: 4px solid #28a745; max-width: 700px; margin: 0 auto 20px;">
+            <i class="fas fa-check-circle me-2"></i>@TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" style="border-radius: 10px; border-left: 4px solid #dc3545; max-width: 700px; margin: 0 auto 20px;">
+            <i class="fas fa-exclamation-circle me-2"></i>@TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <!-- Page Header -->
+    <div class="page-header" style="max-width: 700px; margin: 0 auto 30px;">
+        <div class="text-center">
+            <h2><i class="fas fa-link me-2"></i>Assign Department to Branch</h2>
+            <p class="mb-0 mt-2" style="opacity: 0.9;">Link departments with their branches</p>
+        </div>
+    </div>
+
+    <!-- Form Card -->
+    <div class="form-card">
+        <div class="form-card-header">
+            <h5><i class="fas fa-clipboard-list me-2"></i>Assignment Details</h5>
+        </div>
+        <div class="form-card-body">
+            <div class="info-box">
+                <i class="fas fa-info-circle"></i>
+                <p>Select a branch and a department to create a new assignment.</p>
+            </div>
+
+            <form asp-action="AssignDepartmentToBranch" method="post">
+                @Html.AntiForgeryToken()
+
+                <!-- Branch -->
+                <div class="form-group">
+                    <label class="form-label" asp-for="BranchId">
+                        <i class="fas fa-building"></i>Branch
+                    </label>
+                    <select asp-for="BranchId" asp-items="Model.Branches" class="form-select">
+                        <option value="">-- Select Branch --</option>
+                    </select>
+                    <span asp-validation-for="BranchId" class="text-danger"></span>
+                </div>
+
+                <!-- Department -->
+                <div class="form-group">
+                    <label class="form-label" asp-for="DeptId">
+                        <i class="fas fa-graduation-cap"></i>Department
+                    </label>
+                    <select asp-for="DeptId" asp-items="Model.Departments" class="form-select">
+                        <option value="">-- Select Department --</option>
+                    </select>
+                    <span asp-validation-for="DeptId" class="text-danger"></span>
+                </div>
+
+                <!-- Buttons -->
+                <div class="button-group">
+                    <button type="submit" class="btn btn-assign">
+                        <i class="fas fa-check-circle me-2"></i>Assign Department
+                    </button>
+                    <a asp-action="BranchDepartments" class="btn btn-cancel">
+                        <i class="fas fa-times-circle me-2"></i>Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

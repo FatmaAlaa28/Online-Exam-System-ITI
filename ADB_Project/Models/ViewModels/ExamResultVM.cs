@@ -9,6 +9,6 @@
         public decimal Percentage { get; set; }
         public string Grade { get; set; } = "";
         public string Status { get; set; } = "";
-        public List<string> FormattedAnswers { get; set; } = new();
+        public List<FormattedAnswerVM> FormattedAnswers { get; set; } = new();
     }
 }

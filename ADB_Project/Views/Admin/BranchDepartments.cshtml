@@ -1,0 +1,39 @@
+﻿@model IEnumerable<ADB_Project.Models.BranchDepartment>
+
+@{
+    ViewData["Title"] = "Manage Branch-Department Assignments";
+}
+
+<h2>Manage Branch-Department Assignments</h2>
+
+<p>
+    <a asp-action="AssignDepartmentToBranch" class="btn btn-primary">Assign New</a>
+</p>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Branch</th>
+            <th>Department</th>
+            <th>Created Date</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Branch.BranchName</td>
+                <td>@item.Dept.DeptName</td>
+                <td>@item.CreatedDate</td>
+                <td>
+                    <form asp-action="RemoveDepartmentFromBranch" method="post" style="display:inline;">
+                        <input type="hidden" name="branchId" value="@item.BranchId" />
+                        <input type="hidden" name="deptId" value="@item.DeptId" />
+                        <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure?')">Remove</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

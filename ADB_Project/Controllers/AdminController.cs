@@ -3,6 +3,7 @@ using ADB_Project.Models;
 using ADB_Project.Models.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using System.Data;
@@ -463,6 +464,100 @@ namespace ADB_Project.Controllers
             return View(instructors);
         }
 
-        
+        // GET: /Admin/BranchDepartments (List all assignments)
+        public async Task<IActionResult> BranchDepartments()
+        {
+            var assignments = await _context.BranchDepartments
+                .Include(bd => bd.Branch)
+                .Include(bd => bd.Dept)
+                .ToListAsync();
+
+            return View(assignments);
+        }
+
+        // GET: /Admin/AssignDepartmentToBranch
+        public async Task<IActionResult> AssignDepartmentToBranch()
+        {
+            var model = new AssignDepartmentToBranchViewModel
+            {
+                Branches = await _context.Branches
+                    .Select(b => new SelectListItem
+                    {
+                        Value = b.BranchId.ToString(),
+                        Text = b.BranchName
+                    }).ToListAsync(),
+
+                Departments = await _context.Departments
+                    .Select(d => new SelectListItem
+                    {
+                        Value = d.DeptId.ToString(),
+                        Text = d.DeptName
+                    }).ToListAsync()
+            };
+
+            return View(model);
+        }
+
+        // POST: /Admin/AssignDepartmentToBranch
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AssignDepartmentToBranch(AssignDepartmentToBranchViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                // إعادة تحميل القوائم لو في خطأ
+                model.Branches = await _context.Branches.Select(b => new SelectListItem { Value = b.BranchId.ToString(), Text = b.BranchName }).ToListAsync();
+                model.Departments = await _context.Departments.Select(d => new SelectListItem { Value = d.DeptId.ToString(), Text = d.DeptName }).ToListAsync();
+                return View(model);
+            }
+
+            // تحقق من التكرار
+            var exists = await _context.BranchDepartments
+                .AnyAsync(bd => bd.BranchId == model.BranchId && bd.DeptId == model.DeptId);
+
+            if (exists)
+            {
+                TempData["Error"] = "This department is already assigned to this branch!";
+                model.Branches = await _context.Branches.Select(b => new SelectListItem { Value = b.BranchId.ToString(), Text = b.BranchName }).ToListAsync();
+                model.Departments = await _context.Departments.Select(d => new SelectListItem { Value = d.DeptId.ToString(), Text = d.DeptName }).ToListAsync();
+                return View(model);
+            }
+
+            var assignment = new BranchDepartment
+            {
+                BranchId = model.BranchId,
+                DeptId = model.DeptId,
+                CreatedDate = DateTime.Now
+            };
+
+            _context.BranchDepartments.Add(assignment);
+            await _context.SaveChangesAsync();
+
+            TempData["Success"] = "Department assigned to branch successfully!";
+            return RedirectToAction(nameof(BranchDepartments));
+        }
+
+        // POST: /Admin/RemoveDepartmentFromBranch (Delete assignment)
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> RemoveDepartmentFromBranch(int branchId, int deptId)
+        {
+            var assignment = await _context.BranchDepartments
+                .FirstOrDefaultAsync(bd => bd.BranchId == branchId && bd.DeptId == deptId);
+
+            if (assignment == null)
+            {
+                TempData["Error"] = "Assignment not found!";
+                return RedirectToAction(nameof(BranchDepartments));
+            }
+
+            _context.BranchDepartments.Remove(assignment);
+            await _context.SaveChangesAsync();
+
+            TempData["Success"] = "Assignment removed successfully!";
+            return RedirectToAction(nameof(BranchDepartments));
+        }
+
+
     }
 }

@@ -1,0 +1,31 @@
+﻿@model IEnumerable<ADB_Project.Models.Course>
+
+@{
+    ViewData["Title"] = "My Courses";
+}
+
+<h2>My Courses</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Code</th>
+            <th>Name</th>
+            <th>Credit Hours</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var course in Model)
+        {
+            <tr>
+                <td>@course.CourseCode</td>
+                <td>@course.CourseName</td>
+                <td>@course.CreditHours</td>
+                <td>
+                    <a asp-action="Exams" asp-route-courseId="@course.CourseId" class="btn btn-primary">View Exams</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

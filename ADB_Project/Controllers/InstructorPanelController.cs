@@ -2,7 +2,6 @@
 // This is a new controller specifically for logged-in instructors.
 // The existing InstructorController seems to be for admin management of instructors.
 // I've moved/copied the GenerateExam actions here and adjusted for Instructor role.
-using System.Linq;
 using ADB_Project.Data;
 using ADB_Project.Models;
 using ADB_Project.Models.ADB_Project.Models; // Adjust if namespace is different
@@ -13,7 +12,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using System;
 using System.Data;
+using System.Linq;
 using System.Security.Claims;
 
 namespace ADB_Project.Controllers
@@ -83,13 +84,22 @@ namespace ADB_Project.Controllers
             if (instructorId == null) return Unauthorized();
 
             var courses = await _context.InstructorCourses
-                .Where(ic => ic.InstructorId == instructorId.Value)
+                .Where(ic => ic.InstructorId == instructorId)
                 .Include(ic => ic.Course)
+                    .ThenInclude(c => c.StudentCourses)
+                .Include(ic => ic.Course)
+                    .ThenInclude(c => c.Exams)
                 .Select(ic => ic.Course)
                 .ToListAsync();
 
+            // نحسب الإحصائيات هنا في الـ Controller
+            ViewBag.TotalCourses = courses.Count;
+            ViewBag.TotalStudents = courses.Sum(c => c.StudentCourses?.Count ?? 0);
+            ViewBag.TotalExams = courses.Sum(c => c.Exams?.Count ?? 0);
+
             return View(courses);
         }
+
 
         // ================= QUESTIONS CRUD =================
         // List Questions for a Course
@@ -520,101 +530,97 @@ namespace ADB_Project.Controllers
         }
 
         // ================= ASSIGN EXAM =================
-        [HttpGet]
+        // GET: /InstructorPanel/AssignExam/{examId}
         public async Task<IActionResult> AssignExam(int examId)
         {
-            var instructorId = await GetCurrentInstructorIdAsync();
-            if (instructorId == null) return Unauthorized();
-
             var exam = await _context.Exams.FindAsync(examId);
             if (exam == null) return NotFound();
-            if (exam.CreatedBy != instructorId.Value) return Unauthorized();
 
-            // Get eligible students: those enrolled in the course
-            var eligibleStudents = await _context.StudentCourses
-                .Where(sc => sc.CourseId == exam.CourseId)
-                .Include(sc => sc.Student)
-                .Select(sc => sc.Student)
-                .ToListAsync();
-
-            var viewModel = new AssignExamVM
+            var model = new AssignExamVM
             {
                 ExamId = examId,
-                Students = new MultiSelectList(eligibleStudents, "StudentId", "StudentName"),
-                Departments = new SelectList(await _context.Departments.ToListAsync(), "DeptId", "DeptName")
+                Branches = new SelectList(await _context.Branches.ToListAsync(), "BranchId", "BranchName"),
+                Departments = new SelectList(await _context.Departments.ToListAsync(), "DeptId", "DeptName"),
+                Students = new MultiSelectList(await _context.Students.ToListAsync(), "StudentId", "StudentName")
             };
 
-            return View(viewModel);
+            return View(model);
         }
 
+        // POST: /InstructorPanel/AssignExam
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AssignExam(AssignExamVM model)
         {
-            var instructorId = await GetCurrentInstructorIdAsync();
-            if (instructorId == null) return Unauthorized();
-
-            var exam = await _context.Exams.FindAsync(model.ExamId);
-            if (exam == null) return NotFound();
-            if (exam.CreatedBy != instructorId.Value) return Unauthorized();
-
             if (!ModelState.IsValid)
             {
                 // Reload lists
-                var eligibleStudents = await _context.StudentCourses
-                    .Where(sc => sc.CourseId == exam.CourseId)
-                    .Include(sc => sc.Student)
-                    .Select(sc => sc.Student)
-                    .ToListAsync();
-                model.Students = new MultiSelectList(eligibleStudents, "StudentId", "StudentName");
+                model.Branches = new SelectList(await _context.Branches.ToListAsync(), "BranchId", "BranchName");
                 model.Departments = new SelectList(await _context.Departments.ToListAsync(), "DeptId", "DeptName");
+                model.Students = new MultiSelectList(await _context.Students.ToListAsync(), "StudentId", "StudentName");
                 return View(model);
             }
 
-            var assignedDate = DateTime.Now;
+            // Get the students to assign based on method
             var studentIds = new List<int>();
 
-            if (model.AssignByDepartment && model.DepartmentId.HasValue)
+            if (model.AssignmentMethod == "Branch")
             {
-                // Assign to all students in department enrolled in course
-                studentIds = await _context.StudentCourses
-    .Where(sc => sc.CourseId == exam.CourseId && model.SelectedStudentIds.Contains(sc.StudentId))
-    .Select(sc => sc.StudentId)
-    .ToListAsync();
+                studentIds = await _context.Students
+                    .Where(s => model.SelectedBranchIds.Contains(s.BranchId ?? 0))
+                    .Select(s => s.StudentId)
+                    .ToListAsync();
             }
-            else if (model.SelectedStudentIds != null && model.SelectedStudentIds.Any())
+            else if (model.AssignmentMethod == "Dept")
             {
-                // Manual selection, ensure they are eligible
-                studentIds = model.SelectedStudentIds
-                    .Where(sid => _context.StudentCourses.Any(sc => sc.StudentId == sid && sc.CourseId == exam.CourseId))
-                    .ToList();
+                studentIds = await _context.Students
+                    .Where(s => model.SelectedDeptIds.Contains(s.DeptId ?? 0))
+                    .Select(s => s.StudentId)
+                    .ToListAsync();
             }
-            else
+            else if (model.AssignmentMethod == "Dept")
             {
-                ModelState.AddModelError("", "Please select students or a department.");
-                // Reload lists...
-                return View(model);
+                studentIds = await _context.Students
+                    .Where(s => model.SelectedDeptIds.Contains(s.DeptId ?? 0))
+                    .Select(s => s.StudentId)
+                    .ToListAsync();
+            }
+            else // Manual
+            {
+                studentIds = model.SelectedStudentIds.ToList();
             }
 
+            if (!studentIds.Any())
+            {
+                TempData["Error"] = "No students selected!";
+                return RedirectToAction(nameof(AssignExam), new { examId = model.ExamId });
+            }
+
+            // Assign to each student
             foreach (var studentId in studentIds)
             {
-                if (!await _context.ExamAssignments.AnyAsync(ea => ea.ExamId == model.ExamId && ea.StudentId == studentId))
+                var exists = await _context.ExamAssignments
+                    .AnyAsync(ea => ea.ExamId == model.ExamId && ea.StudentId == studentId);
+
+                if (exists) continue; // Skip if already assigned
+
+                var assignment = new ExamAssignment
                 {
-                    _context.ExamAssignments.Add(new ExamAssignment
-                    {
-                        ExamId = model.ExamId,
-                        StudentId = studentId,
-                        AssignedDate = assignedDate,
-                        DueDate = model.DueDate,
-                        IsActive = true
-                    });
-                }
+                    ExamId = model.ExamId,
+                    StudentId = studentId,
+                    AssignedDate = DateTime.Now,
+                    DueDate = model.DueDate,
+                    IsActive = true
+                };
+
+                _context.ExamAssignments.Add(assignment);
             }
 
             await _context.SaveChangesAsync();
 
-            TempData["Success"] = "Exam assigned successfully to selected students!";
-            return RedirectToAction(nameof(ExamDetails), new { examId = model.ExamId });
+            TempData["Success"] = $"Exam assigned to {studentIds.Count} students successfully!";
+
+            return RedirectToAction("ExamDetails", new { examId = model.ExamId });
         }
 
         // ================= EXAM RESULTS & STATS =================
