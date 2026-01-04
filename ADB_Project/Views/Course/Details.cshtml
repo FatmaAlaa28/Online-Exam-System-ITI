@@ -1,0 +1,12 @@
+﻿@model ADB_Project.Models.Course
+
+<h2>Course Details</h2>
+
+<p><b>Name:</b> @Model.CourseName</p>
+<p><b>Code:</b> @Model.CourseCode</p>
+<p><b>Description:</b> @Model.Description</p>
+<p><b>Max Degree:</b> @Model.MaxDegree</p>
+<p><b>Credit Hours:</b> @Model.CreditHours</p>
+
+<a asp-action="Edit" asp-route-id="@Model.CourseId" class="btn btn-warning">Edit</a>
+<a asp-action="Index" class="btn btn-secondary">Back</a>

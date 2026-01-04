@@ -10,8 +10,8 @@ using System.Threading.Tasks; // تأكد من وجود هذا
 
 namespace ADB_Project.Controllers
 {
-   
-    [Authorize(Roles = "Admin")] // تأمين الـ Controller بالكامل
+
+    [Authorize(Roles = "Admin , Instructor")] // تأمين الـ Controller بالكامل
     public class StudentController : Controller
     {
         private readonly OnlineExamDbContext _context;

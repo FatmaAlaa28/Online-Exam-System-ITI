@@ -2,7 +2,91 @@
     ViewData["Title"] = "Home Page";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<style>
+    .hero-section {
+        background: linear-gradient(135deg, #212529 0%, #2a5298 100%);
+        color: white;
+        padding: 80px 40px;
+        border-radius: 15px;
+        margin-bottom: 40px;
+    }
+
+    .stats-card {
+        background: white;
+        border-radius: 15px;
+        padding: 30px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        margin-bottom: 40px;
+    }
+
+    .stat-item {
+        text-align: center;
+        padding: 20px;
+    }
+
+    .stat-number {
+        font-size: 2.5rem;
+        font-weight: bold;
+        color: #1e3c72;
+    }
+
+    .stat-label {
+        color: #6c757d;
+        font-size: 1rem;
+    }
+
+    .cta-section {
+        background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+        color: white;
+        padding: 60px 40px;
+        border-radius: 15px;
+        text-align: center;
+    }
+</style>
+
+<!-- Hero Section -->
+<div class="hero-section">
+    <div class="row align-items-center">
+        <div class="col-lg-8">
+            <h1 class="display-4 fw-bold mb-4">Welcome to ADB Learning Platform</h1>
+            <p class="lead mb-4">Empowering students and instructors with modern education management tools</p>
+        </div>
+        <div class="col-lg-4 text-center d-none d-lg-block">
+            <i class="fas fa-graduation-cap" style="font-size: 10rem; opacity: 0.3;"></i>
+        </div>
+    </div>
+</div>
+
+<!-- Stats Section -->
+<div class="stats-card">
+    <div class="row">
+        <div class="col-md-6 col-lg-3 stat-item">
+            <div class="stat-number"><i class="fas fa-users"></i> 1000+</div>
+            <div class="stat-label">Active Students</div>
+        </div>
+        <div class="col-md-6 col-lg-3 stat-item">
+            <div class="stat-number"><i class="fas fa-chalkboard-teacher"></i> 50+</div>
+            <div class="stat-label">Expert Instructors</div>
+        </div>
+        <div class="col-md-6 col-lg-3 stat-item">
+            <div class="stat-number"><i class="fas fa-book"></i> 100+</div>
+            <div class="stat-label">Courses Available</div>
+        </div>
+        <div class="col-md-6 col-lg-3 stat-item">
+            <div class="stat-number"><i class="fas fa-building"></i> 10+</div>
+            <div class="stat-label">Departments</div>
+        </div>
+    </div>
+</div>
+
+<!-- CTA Section -->
+<div class="cta-section">
+    <h2 class="display-5 fw-bold mb-4">Ready to Start Your Journey?</h2>
+    <p class="lead mb-4">Join thousands of students and instructors already using our platform</p>
+    @if (User.Identity.IsAuthenticated)
+    {
+        <a asp-controller="Home" asp-action="About" class="btn btn-light btn-lg px-5">
+            <i class="fas fa-info-circle me-2"></i>Learn More
+        </a>
+    }
 </div>

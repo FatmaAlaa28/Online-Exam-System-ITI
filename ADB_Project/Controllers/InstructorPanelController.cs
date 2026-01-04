@@ -577,13 +577,10 @@ namespace ADB_Project.Controllers
             if (model.AssignByDepartment && model.DepartmentId.HasValue)
             {
                 // Assign to all students in department enrolled in course
-                studentIds = await _context.Students
-                    .Where(s => s.DeptId == model.DepartmentId.Value)
-                    .Join(_context.StudentCourses.Where(sc => sc.CourseId == exam.CourseId),
-                          s => s.StudentId,
-                          sc => sc.StudentId,
-                          (s, sc) => s.StudentId)
-                    .ToListAsync();
+                studentIds = await _context.StudentCourses
+    .Where(sc => sc.CourseId == exam.CourseId && model.SelectedStudentIds.Contains(sc.StudentId))
+    .Select(sc => sc.StudentId)
+    .ToListAsync();
             }
             else if (model.SelectedStudentIds != null && model.SelectedStudentIds.Any())
             {

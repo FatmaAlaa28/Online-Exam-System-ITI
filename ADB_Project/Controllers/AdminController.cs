@@ -463,18 +463,6 @@ namespace ADB_Project.Controllers
             return View(instructors);
         }
 
-        // ========================================
-        // COURSES CRUD
-        // ========================================
-
-        // GET: /Admin/Courses
-        public async Task<IActionResult> Courses()
-        {
-            var courses = await _context.Courses
-                .Where(c => c.IsActive == true)
-                .ToListAsync();
-
-            return View(courses);
-        }
+        
     }
 }
