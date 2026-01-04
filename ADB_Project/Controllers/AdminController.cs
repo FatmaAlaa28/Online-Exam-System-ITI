@@ -1,13 +1,15 @@
 ﻿using ADB_Project.Data;
 using ADB_Project.Models;
 using ADB_Project.Models.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 using System.Data;
 
 namespace ADB_Project.Controllers
 {
+    [Authorize(Roles = "Admin")]
     public class AdminController : Controller
     {
         private readonly OnlineExamDbContext _context;
