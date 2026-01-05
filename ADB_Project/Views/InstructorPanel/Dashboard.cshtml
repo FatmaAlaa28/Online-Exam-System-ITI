@@ -1,99 +1,230 @@
-﻿@using ADB_Project.Models.ViewModels
-@* Views/InstructorPanel/Dashboard.cshtml *@
-@model InstructorDashboardVM
+﻿@model ADB_Project.Models.ViewModels.InstructorDashboardVM
 
 @{
     ViewData["Title"] = "Instructor Dashboard";
 }
 
-<div class="container mt-4">
-    <h2 class="mb-4">Welcome, Instructor! 👋</h2>
+<!-- Custom CSS (same as Admin with instructor colors) -->
+<style>
+    .stat-card {
+        border-radius: 12px;
+        padding: 25px;
+        height: 100%;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
 
-    <div class="row">
-        <!-- My Courses Card -->
-        <div class="col-lg-8 mb-4">
-            <div class="card shadow">
-                <div class="card-header bg-primary text-white">
-                    <h4 class="mb-0">My Courses (@Model.Courses.Count)</h4>
-                </div>
-                <div class="card-body p-0">
-                    @if (Model.Courses.Any())
-                    {
-                        <table class="table table-hover mb-0">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>Course Code</th>
-                                    <th>Course Name</th>
-                                    <th>Credit Hours</th>
-                                    <th class="text-center">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach (var course in Model.Courses)
-                                {
-                                    <tr>
-                                        <td><strong>@course.CourseCode</strong></td>
-                                        <td>@course.CourseName</td>
-                                        <td>@course.CreditHours</td>
-                                        <td class="text-center">
-                                            <a asp-action="Questions" asp-route-courseId="@course.CourseId"
-                                               class="btn btn-sm btn-outline-info me-1" title="Manage Questions">
-                                                <i class="fas fa-question-circle"></i> Questions
-                                            </a>
-                                            <a asp-action="GenerateExam" class="btn btn-sm btn-success" title="Create New Exam">
-                                                <i class="fas fa-plus"></i> New Exam
-                                            </a>
-                                        </td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
-                    }
-                    else
-                    {
-                        <p class="text-center py-5 text-muted">
-                            No courses assigned yet. Contact admin to assign courses.
-                        </p>
-                    }
-                </div>
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 150px;
+            height: 150px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            transform: translate(50%, -50%);
+        }
+
+    .stat-icon {
+        font-size: 2.5rem;
+        opacity: 0.8;
+    }
+
+    .stat-number {
+        font-size: 2.5rem;
+        font-weight: bold;
+        margin: 10px 0;
+    }
+
+    .stat-label {
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        opacity: 0.8;
+    }
+
+    .chart-container {
+        background: white;
+        border-radius: 12px;
+        padding: 20px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .dashboard-section {
+        margin-bottom: 40px;
+    }
+
+    .recent-exams-card {
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .exam-item {
+        border-bottom: 1px solid #eee;
+        padding: 15px;
+        transition: background 0.3s;
+    }
+
+        .exam-item:hover {
+            background: #f8f9fa;
+        }
+
+    .quick-actions {
+        display: flex;
+        gap: 15px;
+        justify-content: flex-end;
+        margin-top: 30px;
+    }
+
+    .btn-quick {
+        padding: 12px 25px;
+        border-radius: 25px;
+        font-weight: 600;
+    }
+</style>
+
+<div class="container-fluid py-5">
+    <div class="row mb-5">
+        <div class="col-12 text-center">
+            <h1 class="display-5 fw-bold text-primary">Welcome Back, Instructor! 👋</h1>
+            <p class="lead text-muted">Manage your courses, exams, and track student performance</p>
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="row g-4 dashboard-section">
+        <div class="col-xl-3 col-md-6">
+            <div class="stat-card bg-primary text-white">
+                <div class="stat-icon"><i class="fas fa-book"></i></div>
+                <div class="stat-number">@Model.TotalCourses</div>
+                <div class="stat-label">My Courses</div>
             </div>
         </div>
-
-        <!-- Recent Exams Card -->
-        <div class="col-lg-4 mb-4">
-            <div class="card shadow">
-                <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
-                    <h4 class="mb-0">Recent Exams</h4>
-                    <a asp-action="MyExams" class="btn btn-sm btn-light">View All</a>
-                </div>
-                <div class="card-body p-0">
-                    @if (Model.Exams.Any())
-                    {
-                        <div class="list-group list-group-flush">
-                            @foreach (var exam in Model.Exams.Take(6))
-                            {
-                                <a asp-action="ExamDetails" asp-route-examId="@exam.ExamId"
-                                   class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
-                                    <div>
-                                        <strong>@exam.ExamName</strong><br>
-                                        <small class="text-muted">@exam.Course.CourseName • @exam.TotalQuestions questions</small>
-                                    </div>
-                                    <span class="badge bg-primary rounded-pill">@exam.ExamDate?.ToString("MMM dd")</span>
-                                </a>
-                            }
-                        </div>
-                    }
-                    else
-                    {
-                        <p class="text-center py-5 text-muted">No exams created yet.</p>
-                    }
-                </div>
-                <div class="card-footer text-center">
-                    <a asp-action="GenerateExam" class="btn btn-success">
-                        <i class="fas fa-plus-circle"></i> Generate New Exam
-                    </a>
-                </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="stat-card bg-success text-white">
+                <div class="stat-icon"><i class="fas fa-users"></i></div>
+                <div class="stat-number">@Model.TotalStudents</div>
+                <div class="stat-label">Total Students</div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="stat-card bg-info text-white">
+                <div class="stat-icon"><i class="fas fa-file-alt"></i></div>
+                <div class="stat-number">@Model.TotalExams</div>
+                <div class="stat-label">Created Exams</div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="stat-card bg-warning text-white">
+                <div class="stat-icon"><i class="fas fa-chart-line"></i></div>
+                <div class="stat-number">@Model.AverageGrade:F1%</div>
+                <div class="stat-label">Average Student Grade</div>
             </div>
         </div>
     </div>
+
+    <!-- Charts Row -->
+    <div class="row g-4 dashboard-section">
+        <div class="col-lg-6">
+            <div class="chart-container">
+                <h5 class="mb-4 text-center fw-bold">Exams by Status</h5>
+                <canvas id="examsStatusChart" height="200"></canvas>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="chart-container">
+                <h5 class="mb-4 text-center fw-bold">Course Status</h5>
+                <canvas id="courseStatusChart" height="200"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Exams -->
+    <div class="dashboard-section">
+        <div class="recent-exams-card">
+            <div class="card-header bg-primary text-white fw-bold py-3">
+                <i class="fas fa-clock me-2"></i>Recent Exams
+            </div>
+            <div class="list-group list-group-flush">
+                @if (Model.RecentExams.Any())
+                {
+                    foreach (var exam in Model.RecentExams)
+                    {
+                        <a asp-action="ExamDetails" asp-route-examId="@exam.ExamId" class="list-group-item list-group-item-action exam-item">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong>@exam.ExamName</strong>
+                                    <small class="d-block text-muted">@exam.Course.CourseName • @exam.TotalQuestions questions</small>
+                                </div>
+                                <span class="badge bg-secondary rounded-pill">@exam.ExamDate:dd MMM yyyy</span>
+                            </div>
+                        </a>
+                    }
+                }
+                else
+                {
+                    <div class="list-group-item text-center text-muted py-4">
+                        No exams created yet.
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="quick-actions">
+        <a asp-action="MyCourses" class="btn btn-primary btn-quick">
+            <i class="fas fa-book me-2"></i>My Courses
+        </a>
+        <a asp-action="GenerateExam" class="btn btn-success btn-quick">
+            <i class="fas fa-plus-circle me-2"></i>Generate Exam
+        </a>
+    </div>
 </div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Exams by Status (Bar Chart)
+        new Chart(document.getElementById('examsStatusChart'), {
+            type: 'bar',
+            data: {
+                labels: ['Created', 'Ongoing', 'Completed', 'Graded'],
+                datasets: [{
+                    label: 'Exams',
+                    data: [@Model.ExamsCreated, @Model.ExamsOngoing, @Model.ExamsCompleted, @Model.ExamsGraded],
+                    backgroundColor: ['#007bff', '#ffc107', '#28a745', '#6f42c1']
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: { y: { beginAtZero: true } }
+            }
+        });
+
+        // Course Status (Doughnut)
+        new Chart(document.getElementById('courseStatusChart'), {
+            type: 'doughnut',
+            data: {
+                labels: ['Active Courses', 'Inactive Courses'],
+                datasets: [{
+                    data: [@Model.ActiveCourses, @Model.InactiveCourses],
+                    backgroundColor: ['#198754', '#dc3545']
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: { legend: { position: 'top' } }
+            }
+        });
+    </script>
+}

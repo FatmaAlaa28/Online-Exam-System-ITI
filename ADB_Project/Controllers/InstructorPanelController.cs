@@ -48,8 +48,9 @@ namespace ADB_Project.Controllers
 
         // ================= DASHBOARD =================
         // Shows list of assigned courses with links to questions, generate exam, etc.
-        public async Task<IActionResult> Dashboard()
-        {
+// GET: /InstructorPanel/Dashboard
+public async Task<IActionResult> Dashboard()
+{
             var instructorId = await GetCurrentInstructorIdAsync();
             if (instructorId == null)
             {
@@ -57,25 +58,61 @@ namespace ADB_Project.Controllers
             }
 
             var courses = await _context.InstructorCourses
-                .Where(ic => ic.InstructorId == instructorId.Value)
-                .Include(ic => ic.Course)
-                .Select(ic => ic.Course)
-                .ToListAsync();
+        .Where(ic => ic.InstructorId == instructorId)
+        .Include(ic => ic.Course)
+            .ThenInclude(c => c.StudentCourses)
+        .Include(ic => ic.Course)
+            .ThenInclude(c => c.Exams)
+        .Select(ic => ic.Course)
+        .ToListAsync();
 
-            // Also get list of exams created by this instructor for quick access
             var exams = await _context.Exams
-                .Where(e => e.CreatedBy == instructorId.Value)
-                .ToListAsync();
+            .Where(e => e.CreatedBy == instructorId)
+            .ToListAsync();
 
-            var viewModel = new InstructorDashboardVM
+            var now = DateTime.Now;
+
+            var model = new InstructorDashboardVM
             {
-                Courses = courses,
-                Exams = exams
+                TotalCourses = courses.Count,
+                TotalStudents = courses.Sum(c => c.StudentCourses?.Count ?? 0),
+                TotalExams = exams.Count,
+                AverageGrade = exams.Any()
+                    ? exams.Average(e => e.ExamGrades?.Any() == true
+                        ? e.ExamGrades.Average(g => g.Percentage ?? 0)
+                        : 0)
+                    : 0,
+
+                // Exams status with null-safe checks
+                ExamsCreated = exams.Count(e => e.ExamDate.HasValue && e.ExamDate.Value > now),
+
+                ExamsOngoing = exams.Count(e =>
+                    e.ExamDate.HasValue &&
+                    e.ExamDate.Value <= now &&
+                    e.DurationMinutes.HasValue &&
+                    e.ExamDate.Value.AddMinutes(e.DurationMinutes.Value) > now),
+
+                ExamsCompleted = exams.Count(e =>
+                    e.ExamDate.HasValue &&
+                    e.DurationMinutes.HasValue &&
+                    e.ExamDate.Value.AddMinutes(e.DurationMinutes.Value) <= now),
+
+                ExamsGraded = exams.Count(e => e.ExamGrades != null && e.ExamGrades.Any()),
+
+                ActiveCourses = courses.Count(c => c.IsActive == true),  // null-safe
+                InactiveCourses = courses.Count(c => c.IsActive != true),
+
+                RecentExams = exams
+                    .Where(e => e.ExamDate.HasValue)
+                    .OrderByDescending(e => e.ExamDate.Value)
+                    .Take(5)
+                    .ToList(),
+
+                Courses = courses
             };
 
-            return View(viewModel);
-        }
-
+            return View(model);
+}
         // ================= COURSES =================
         // Not needed since dashboard lists them, but if you want a separate view
         public async Task<IActionResult> MyCourses()
