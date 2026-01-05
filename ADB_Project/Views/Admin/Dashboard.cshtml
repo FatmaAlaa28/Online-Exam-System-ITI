@@ -3,62 +3,747 @@
     ViewData["Title"] = "Admin Dashboard";
 }
 
-<div class="container mt-4">
-    <h2 class="mb-4">Admin Dashboard</h2>
+<!-- Custom CSS (نفس اللي فوق + إضافات للـ Charts) -->
+<style>
+    .stat-card {
+        border-radius: 12px;
+        padding: 25px;
+        height: 100%;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
 
-    <div class="row">
-        <div class="col-md-4 mb-3">
-            <div class="card text-white bg-primary">
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 150px;
+            height: 150px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            transform: translate(50%, -50%);
+        }
+
+    .stat-icon {
+        font-size: 3rem;
+        opacity: 0.3;
+        position: absolute;
+        bottom: 10px;
+        right: 15px;
+    }
+
+    .stat-value {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin: 0;
+        position: relative;
+        z-index: 1;
+    }
+
+    .stat-label {
+        font-size: 0.95rem;
+        font-weight: 500;
+        margin-bottom: 10px;
+        opacity: 0.9;
+        position: relative;
+        z-index: 1;
+    }
+
+    .stat-change {
+        font-size: 0.85rem;
+        margin-top: 8px;
+        position: relative;
+        z-index: 1;
+    }
+
+    .card-modern {
+        border-radius: 12px;
+        border: none;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        margin-bottom: 24px;
+    }
+
+    .card-header-modern {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 12px 12px 0 0 !important;
+        padding: 20px;
+        border: none;
+    }
+
+    .quick-action-btn {
+        padding: 15px;
+        border-radius: 10px;
+        text-align: center;
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
+        text-decoration: none;
+        display: block;
+        color: white;
+        font-weight: 500;
+    }
+
+        .quick-action-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+            color: white;
+        }
+
+    .progress-modern {
+        height: 8px;
+        border-radius: 10px;
+        background-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .progress-bar-modern {
+        border-radius: 10px;
+    }
+
+    .table-modern {
+        font-size: 0.9rem;
+    }
+
+        .table-modern thead {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+    .badge-modern {
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-weight: 500;
+    }
+
+    /* Chart Container Styles */
+    .chart-container {
+        position: relative;
+        height: 300px;
+        padding: 20px;
+    }
+
+    .chart-container-pie {
+        position: relative;
+        height: 350px;
+        padding: 20px;
+    }
+</style>
+
+<div class="container-fluid mt-4">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2 class="mb-2">
+                <i class="bi bi-speedometer2"></i> Admin Dashboard
+            </h2>
+            <p class="text-muted">Welcome back! Here's what's happening with ITI Online Exam System.</p>
+        </div>
+    </div>
+
+    <!-- Statistics Cards Row 1 -->
+    <div class="row mb-4">
+        <!-- Total Students -->
+        <div class="col-md-4 col-lg-2 mb-3">
+            <div class="stat-card text-white" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                <div class="stat-label">Total Students</div>
+                <h3 class="stat-value">@Model.TotalStudents</h3>
+                <div class="stat-change">
+                    <i class="bi bi-arrow-up"></i> @Model.StudentsEnrolledThisMonth this month
+                </div>
+                <i class="bi bi-people stat-icon"></i>
+            </div>
+        </div>
+
+        <!-- Total Instructors -->
+        <div class="col-md-4 col-lg-2 mb-3">
+            <div class="stat-card text-white" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                <div class="stat-label">Total Instructors</div>
+                <h3 class="stat-value">@Model.TotalInstructors</h3>
+                <div class="stat-change">
+                    <i class="bi bi-check-circle"></i> Active
+                </div>
+                <i class="bi bi-person-badge stat-icon"></i>
+            </div>
+        </div>
+
+        <!-- Total Courses -->
+        <div class="col-md-4 col-lg-2 mb-3">
+            <div class="stat-card text-white" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                <div class="stat-label">Total Courses</div>
+                <h3 class="stat-value">@Model.TotalCourses</h3>
+                <div class="stat-change">
+                    <i class="bi bi-book"></i> Available
+                </div>
+                <i class="bi bi-journal-code stat-icon"></i>
+            </div>
+        </div>
+
+        <!-- Total Exams -->
+        <div class="col-md-4 col-lg-2 mb-3">
+            <div class="stat-card text-white" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+                <div class="stat-label">Total Exams</div>
+                <h3 class="stat-value">@Model.TotalExams</h3>
+                <div class="stat-change">
+                    <i class="bi bi-plus-circle"></i> @Model.ExamsCreatedThisMonth this month
+                </div>
+                <i class="bi bi-clipboard-check stat-icon"></i>
+            </div>
+        </div>
+
+        <!-- Active Branches -->
+        <div class="col-md-4 col-lg-2 mb-3">
+            <div class="stat-card text-white" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
+                <div class="stat-label">Active Branches</div>
+                <h3 class="stat-value">@Model.ActiveBranches</h3>
+                <div class="stat-change">
+                    <i class="bi bi-geo-alt"></i> Locations
+                </div>
+                <i class="bi bi-building stat-icon"></i>
+            </div>
+        </div>
+
+        <!-- Active Departments -->
+        <div class="col-md-4 col-lg-2 mb-3">
+            <div class="stat-card text-white" style="background: linear-gradient(135deg, #30cfd0 0%, #330867 100%);">
+                <div class="stat-label">Departments</div>
+                <h3 class="stat-value">@Model.ActiveDepartments</h3>
+                <div class="stat-change">
+                    <i class="bi bi-diagram-3"></i> Active
+                </div>
+                <i class="bi bi-diagram-2 stat-icon"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Cards Row 2 -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div class="stat-card text-white" style="background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);">
+                <div class="stat-label" style="color: #333;">Pending Exams</div>
+                <h3 class="stat-value" style="color: #333;">@Model.PendingExams</h3>
+                <div class="stat-change" style="color: #666;">
+                    <i class="bi bi-clock-history"></i> Awaiting completion
+                </div>
+                <i class="bi bi-hourglass-split stat-icon" style="color: #333; opacity: 0.2;"></i>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-3">
+            <div class="stat-card text-white" style="background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);">
+                <div class="stat-label" style="color: #333;">Completed Exams</div>
+                <h3 class="stat-value" style="color: #333;">@Model.CompletedExams</h3>
+                <div class="stat-change" style="color: #666;">
+                    <i class="bi bi-check-circle-fill"></i> Finished
+                </div>
+                <i class="bi bi-check2-all stat-icon" style="color: #333; opacity: 0.2;"></i>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-3">
+            <div class="stat-card text-white" style="background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%);">
+                <div class="stat-label" style="color: #333;">Question Bank</div>
+                <h3 class="stat-value" style="color: #333;">@Model.TotalQuestions</h3>
+                <div class="stat-change" style="color: #666;">
+                    <i class="bi bi-question-circle"></i> Questions
+                </div>
+                <i class="bi bi-question-square stat-icon" style="color: #333; opacity: 0.2;"></i>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-3">
+            <div class="stat-card text-white" style="background: linear-gradient(135deg, #d299c2 0%, #fef9d7 100%);">
+                <div class="stat-label" style="color: #333;">Average Score</div>
+                <h3 class="stat-value" style="color: #333;">@Model.AverageExamScore.ToString("F1")%</h3>
+                <div class="stat-change" style="color: #666;">
+                    <i class="bi bi-graph-up"></i> Overall performance
+                </div>
+                <i class="bi bi-bar-chart stat-icon" style="color: #333; opacity: 0.2;"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================
+         CHARTS SECTION (NEW!)
+         ======================================== -->
+    <!-- Charts Row 1: Line Chart & Pie Chart -->
+    <div class="row mb-4">
+        <!-- Monthly Enrollments Line Chart -->
+        <div class="col-lg-8 mb-4">
+            <div class="card card-modern">
+                <div class="card-header card-header-modern">
+                    <h5 class="mb-0">
+                        <i class="bi bi-graph-up"></i> Student Enrollments Trend (Last 6 Months)
+                    </h5>
+                </div>
                 <div class="card-body">
-                    <h5>Total Students</h5>
-                    <h3>@Model.TotalStudents</h3>
+                    <div class="chart-container">
+                        <canvas id="enrollmentChart"></canvas>
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="col-md-4 mb-3">
-            <div class="card text-white bg-success">
-                <div class="card-body">
-                    <h5>Total Instructors</h5>
-                    <h3>@Model.TotalInstructors</h3>
+
+        <!-- Department Distribution Pie Chart -->
+        <div class="col-lg-4 mb-4">
+            <div class="card card-modern">
+                <div class="card-header card-header-modern">
+                    <h5 class="mb-0">
+                        <i class="bi bi-pie-chart"></i> Students by Department
+                    </h5>
                 </div>
-            </div>
-        </div>
-        <div class="col-md-4 mb-3">
-            <div class="card text-white bg-info">
                 <div class="card-body">
-                    <h5>Total Courses</h5>
-                    <h3>@Model.TotalCourses</h3>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4 mb-3">
-            <div class="card text-white bg-warning">
-                <div class="card-body">
-                    <h5>Total Exams</h5>
-                    <h3>@Model.TotalExams</h3>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4 mb-3">
-            <div class="card text-white bg-secondary">
-                <div class="card-body">
-                    <h5>Active Branches</h5>
-                    <h3>@Model.ActiveBranches</h3>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4 mb-3">
-            <div class="card text-white bg-dark">
-                <div class="card-body">
-                    <h5>Active Departments</h5>
-                    <h3>@Model.ActiveDepartments</h3>
+                    <div class="chart-container-pie">
+                        <canvas id="departmentPieChart"></canvas>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="mt-4">
-        <h4>Quick Actions</h4>
-        
+    <!-- Charts Row 2: Bar Charts -->
+    <div class="row mb-4">
+        <!-- Popular Courses Bar Chart -->
+        <div class="col-lg-6 mb-4">
+            <div class="card card-modern">
+                <div class="card-header card-header-modern">
+                    <h5 class="mb-0">
+                        <i class="bi bi-bar-chart"></i> Top 5 Popular Courses
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container">
+                        <canvas id="popularCoursesChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Exam Status Doughnut Chart -->
+        <div class="col-lg-6 mb-4">
+            <div class="card card-modern">
+                <div class="card-header card-header-modern">
+                    <h5 class="mb-0">
+                        <i class="bi bi-clipboard-data"></i> Exam Completion Status
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container">
+                        <canvas id="examStatusChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Top Students & Recent Exams Tables -->
+    <div class="row">
+        <!-- Top Performing Students -->
+        <div class="col-lg-6 mb-4">
+            <div class="card card-modern">
+                <div class="card-header card-header-modern">
+                    <h5 class="mb-0">
+                        <i class="bi bi-trophy"></i> Top Performing Students
+                    </h5>
+                </div>
+                <div class="card-body">
+                    @if (Model.TopPerformingStudents != null && Model.TopPerformingStudents.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-modern table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Student</th>
+                                        <th>Department</th>
+                                        <th>Avg Grade</th>
+                                        <th>Exams</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @for (int i = 0; i < Model.TopPerformingStudents.Count; i++)
+                                    {
+                                        var student = Model.TopPerformingStudents[i];
+                                        <tr>
+                                            <td>
+                                                @if (i == 0)
+                                                {
+                                                    <i class="bi bi-trophy-fill text-warning fs-5"></i>
+                                                }
+                                                else if (i == 1)
+                                                {
+                                                    <i class="bi bi-trophy-fill text-secondary fs-5"></i>
+                                                }
+                                                else if (i == 2)
+                                                {
+                                                    <i class="bi bi-trophy-fill fs-5" style="color: #cd7f32;"></i>
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-muted">@(i + 1)</span>
+                                                }
+                                            </td>
+                                            <td><strong>@student.StudentName</strong></td>
+                                            <td>@student.DepartmentName</td>
+                                            <td>
+                                                <span class="badge badge-modern bg-success">
+                                                    @student.AverageGrade.ToString("F1")%
+                                                </span>
+                                            </td>
+                                            <td>@student.CompletedExams</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="text-muted text-center">No student data available.</p>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Exams -->
+        <div class="col-lg-6 mb-4">
+            <div class="card card-modern">
+                <div class="card-header card-header-modern">
+                    <h5 class="mb-0">
+                        <i class="bi bi-clipboard-check"></i> Recent Exams
+                    </h5>
+                </div>
+                <div class="card-body">
+                    @if (Model.RecentExams != null && Model.RecentExams.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-modern table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Exam</th>
+                                        <th>Course</th>
+                                        <th>Participants</th>
+                                        <th>Avg Score</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var exam in Model.RecentExams)
+                                    {
+                                        <tr>
+                                            <td>
+                                                <strong>@exam.ExamName</strong>
+                                                <br />
+                                                <small class="text-muted">@exam.ExamDate?.ToString("MMM dd, yyyy")</small>
+                                            </td>
+                                            <td>@exam.CourseName</td>
+                                            <td>
+                                                <span class="badge badge-modern bg-info">
+                                                    @exam.ParticipantCount
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <span class="badge badge-modern @(exam.AverageScore >= 60 ? "bg-success" : "bg-danger")">
+                                                    @exam.AverageScore.ToString("F1")%
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="text-muted text-center">No recent exams.</p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row">
+        <div class="col-12 mb-4">
+            <div class="card card-modern">
+                <div class="card-header card-header-modern">
+                    <h5 class="mb-0">
+                        <i class="bi bi-lightning-charge"></i> Quick Actions
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-2 col-sm-4 col-6 mb-3">
+                            <a asp-action="Branches" class="quick-action-btn" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                                <i class="bi bi-building fs-3 d-block mb-2"></i>
+                                <span>Manage<br />Branches</span>
+                            </a>
+                        </div>
+                        <div class="col-md-2 col-sm-4 col-6 mb-3">
+                            <a asp-action="Departments" class="quick-action-btn" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                                <i class="bi bi-diagram-3 fs-3 d-block mb-2"></i>
+                                <span>Manage<br />Departments</span>
+                            </a>
+                        </div>
+                        <div class="col-md-2 col-sm-4 col-6 mb-3">
+                            <a asp-action="Instructors" class="quick-action-btn" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                                <i class="bi bi-person-badge fs-3 d-block mb-2"></i>
+                                <span>Manage<br />Instructors</span>
+                            </a>
+                        </div>
+                        <div class="col-md-2 col-sm-4 col-6 mb-3">
+                            <a asp-action="Students" class="quick-action-btn" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+                                <i class="bi bi-people fs-3 d-block mb-2"></i>
+                                <span>Manage<br />Students</span>
+                            </a>
+                        </div>
+                        <div class="col-md-2 col-sm-4 col-6 mb-3">
+                            <a asp-controller="Courses" asp-action="Index" class="quick-action-btn" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
+                                <i class="bi bi-book fs-3 d-block mb-2"></i>
+                                <span>Manage<br />Courses</span>
+                            </a>
+                        </div>
+                        <div class="col-md-2 col-sm-4 col-6 mb-3">
+                            <a asp-action="BranchDepartments" class="quick-action-btn" style="background: linear-gradient(135deg, #30cfd0 0%, #330867 100%);">
+                                <i class="bi bi-link-45deg fs-3 d-block mb-2"></i>
+                                <span>Assign<br />Departments</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script>
+        // ============================================
+        // 1. MONTHLY ENROLLMENTS LINE CHART
+        // ============================================
+        const enrollmentCtx = document.getElementById('enrollmentChart').getContext('2d');
+        const enrollmentChart = new Chart(enrollmentCtx, {
+            type: 'line',
+            data: {
+                labels: @Html.Raw(Json.Serialize(Model.MonthlyEnrollments.Select(m => m.Month))),
+                datasets: [{
+                    label: 'Student Enrollments',
+                    data: @Html.Raw(Json.Serialize(Model.MonthlyEnrollments.Select(m => m.Count))),
+                    borderColor: 'rgb(102, 126, 234)',
+                    backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                    tension: 0.4,
+                    fill: true,
+                    pointBackgroundColor: 'rgb(102, 126, 234)',
+                    pointBorderColor: '#fff',
+                    pointHoverBackgroundColor: '#fff',
+                    pointHoverBorderColor: 'rgb(102, 126, 234)',
+                    pointRadius: 5,
+                    pointHoverRadius: 7
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top',
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        padding: 12,
+                        titleColor: '#fff',
+                        bodyColor: '#fff',
+                        borderColor: 'rgb(102, 126, 234)',
+                        borderWidth: 1
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1
+                        },
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.05)'
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        }
+                    }
+                }
+            }
+        });
+
+        // ============================================
+        // 2. DEPARTMENT PIE CHART
+        // ============================================
+        const deptCtx = document.getElementById('departmentPieChart').getContext('2d');
+        const departmentPieChart = new Chart(deptCtx, {
+            type: 'pie',
+            data: {
+                labels: @Html.Raw(Json.Serialize(Model.DepartmentStatistics.Select(d => d.DepartmentName))),
+                datasets: [{
+                    data: @Html.Raw(Json.Serialize(Model.DepartmentStatistics.Select(d => d.StudentCount))),
+                    backgroundColor: [
+                        'rgba(102, 126, 234, 0.8)',
+                        'rgba(240, 147, 251, 0.8)',
+                        'rgba(79, 172, 254, 0.8)',
+                        'rgba(67, 233, 123, 0.8)',
+                        'rgba(250, 112, 154, 0.8)'
+                    ],
+                    borderColor: [
+                        'rgb(102, 126, 234)',
+                        'rgb(240, 147, 251)',
+                        'rgb(79, 172, 254)',
+                        'rgb(67, 233, 123)',
+                        'rgb(250, 112, 154)'
+                    ],
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            padding: 15,
+                            font: {
+                                size: 12
+                            }
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                label += context.parsed + ' students';
+                                return label;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // ============================================
+        // 3. POPULAR COURSES BAR CHART
+        // ============================================
+        const coursesCtx = document.getElementById('popularCoursesChart').getContext('2d');
+        const popularCoursesChart = new Chart(coursesCtx, {
+            type: 'bar',
+            data: {
+                labels: @Html.Raw(Json.Serialize(Model.PopularCourses.Select(c => c.CourseName))),
+                datasets: [{
+                    label: 'Enrolled Students',
+                    data: @Html.Raw(Json.Serialize(Model.PopularCourses.Select(c => c.EnrolledStudents))),
+                    backgroundColor: 'rgba(67, 233, 123, 0.7)',
+                    borderColor: 'rgb(67, 233, 123)',
+                    borderWidth: 2,
+                    borderRadius: 8,
+                    borderSkipped: false
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        padding: 12
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1
+                        },
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.05)'
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        }
+                    }
+                }
+            }
+        });
+
+        // ============================================
+        // 4. EXAM STATUS DOUGHNUT CHART
+        // ============================================
+        const examStatusCtx = document.getElementById('examStatusChart').getContext('2d');
+        const examStatusChart = new Chart(examStatusCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Completed', 'Pending', 'Not Started'],
+                datasets: [{
+                    data: [
+                        @Model.CompletedExams,
+                        @Model.PendingExams,
+                        @(Model.TotalExams - Model.CompletedExams - Model.PendingExams)
+                    ],
+                    backgroundColor: [
+                        'rgba(67, 233, 123, 0.8)',
+                        'rgba(255, 193, 7, 0.8)',
+                        'rgba(220, 53, 69, 0.8)'
+                    ],
+                    borderColor: [
+                        'rgb(67, 233, 123)',
+                        'rgb(255, 193, 7)',
+                        'rgb(220, 53, 69)'
+                    ],
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            padding: 15,
+                            font: {
+                                size: 12
+                            }
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                label += context.parsed + ' exams';
+                                return label;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        console.log('Dashboard with interactive charts loaded successfully! 📊');
+    </script>
+}

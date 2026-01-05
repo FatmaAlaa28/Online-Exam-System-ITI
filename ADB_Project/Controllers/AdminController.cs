@@ -24,26 +24,123 @@ namespace ADB_Project.Controllers
         // DASHBOARD
         // ========================================
 
+        // GET: /Admin/Dashboard
         public async Task<IActionResult> Dashboard()
         {
             var model = new AdminDashboardViewModel
             {
-                TotalStudents = await _context.Students
-                    .CountAsync(s => s.IsActive == true),
-
-                TotalInstructors = await _context.Instructors
-                    .CountAsync(i => i.IsActive == true),
-
-                TotalCourses = await _context.Courses
-                    .CountAsync(c => c.IsActive == true),
-
+                // Basic Statistics
+                TotalStudents = await _context.Students.CountAsync(s => s.IsActive == true),
+                TotalInstructors = await _context.Instructors.CountAsync(i => i.IsActive == true),
+                TotalCourses = await _context.Courses.CountAsync(c => c.IsActive == true),
                 TotalExams = await _context.Exams.CountAsync(),
+                ActiveBranches = await _context.Branches.CountAsync(b => b.IsActive == true),
+                ActiveDepartments = await _context.Departments.CountAsync(d => d.IsActive == true),
 
-                ActiveBranches = await _context.Branches
-                    .CountAsync(b => b.IsActive == true),
+                // Advanced Statistics
+                PendingExams = await _context.ExamAssignments
+                    .Where(ea => ea.IsActive == true && !_context.StudentExams
+                        .Any(se => se.ExamId == ea.ExamId && se.StudentId == ea.StudentId && se.SubmittedDate != null))
+                    .CountAsync(),
 
-                ActiveDepartments = await _context.Departments
-                    .CountAsync(d => d.IsActive == true)
+                CompletedExams = await _context.StudentExams
+                    .CountAsync(se => se.SubmittedDate != null),
+
+                TotalQuestions = await _context.Questions.CountAsync(q => q.IsActive == true),
+
+                AverageExamScore = await _context.ExamGrades
+                    .AnyAsync()
+                    ? (decimal)await _context.ExamGrades.AverageAsync(eg => eg.Percentage ?? 0)
+                    : 0,
+
+                StudentsEnrolledThisMonth = await _context.Students
+                    .CountAsync(s => s.EnrollmentDate.HasValue &&
+                                   s.EnrollmentDate.Value.Month == DateTime.Now.Month &&
+                                   s.EnrollmentDate.Value.Year == DateTime.Now.Year),
+
+                ExamsCreatedThisMonth = await _context.Exams
+                    .CountAsync(e => e.CreatedDate.HasValue &&
+                                   e.CreatedDate.Value.Month == DateTime.Now.Month &&
+                                   e.CreatedDate.Value.Year == DateTime.Now.Year),
+
+                // Department Statistics
+                DepartmentStatistics = await _context.Departments
+                    .Where(d => d.IsActive == true)
+                    .Select(d => new DepartmentStatistic
+                    {
+                        DepartmentName = d.DeptName,
+                        StudentCount = d.Students.Count(s => s.IsActive == true),
+                        CourseCount = d.DepartmentCourses.Count()
+                    })
+                    .OrderByDescending(d => d.StudentCount)
+                    .Take(5)
+                    .ToListAsync(),
+
+                // Recent Exams
+                RecentExams = await _context.Exams
+                    .Include(e => e.Course)
+                    .OrderByDescending(e => e.ExamDate)
+                    .Take(5)
+                    .Select(e => new ExamStatistic
+                    {
+                        ExamId = e.ExamId,
+                        ExamName = e.ExamName,
+                        CourseName = e.Course.CourseName,
+                        ExamDate = e.ExamDate,
+                        ParticipantCount = _context.ExamAssignments.Count(ea => ea.ExamId == e.ExamId),
+                        AverageScore = _context.ExamGrades
+                            .Where(eg => eg.ExamId == e.ExamId)
+                            .Any()
+                            ? (decimal)_context.ExamGrades
+                                .Where(eg => eg.ExamId == e.ExamId)
+                                .Average(eg => eg.Percentage ?? 0)
+                            : 0
+                    })
+                    .ToListAsync(),
+
+                // Top Performing Students
+                TopPerformingStudents = await _context.ExamGrades
+                    .Include(eg => eg.Student)
+                        .ThenInclude(s => s.Dept)
+                    .GroupBy(eg => new { eg.StudentId, eg.Student.StudentName, eg.Student.Dept.DeptName })
+                    .Select(g => new TopStudent
+                    {
+                        StudentId = g.Key.StudentId,
+                        StudentName = g.Key.StudentName,
+                        DepartmentName = g.Key.DeptName ?? "N/A",
+                        AverageGrade = (decimal)g.Average(eg => eg.Percentage ?? 0),
+                        CompletedExams = g.Count()
+                    })
+                    .OrderByDescending(s => s.AverageGrade)
+                    .Take(5)
+                    .ToListAsync(),
+
+                // Popular Courses
+                PopularCourses = await _context.Courses
+                    .Where(c => c.IsActive == true)
+                    .Select(c => new CoursePopularity
+                    {
+                        CourseName = c.CourseName,
+                        EnrolledStudents = c.StudentCourses.Count(sc => sc.IsActive == true),
+                        TotalExams = c.Exams.Count()
+                    })
+                    .OrderByDescending(c => c.EnrolledStudents)
+                    .Take(5)
+                    .ToListAsync(),
+
+                // Monthly Enrollments (Last 6 months)
+                MonthlyEnrollments = Enumerable.Range(0, 6)
+                    .Select(i => DateTime.Now.AddMonths(-i))
+                    .Select(date => new MonthlyEnrollment
+                    {
+                        Month = date.ToString("MMM yyyy"),
+                        Count = _context.Students
+                            .Count(s => s.EnrollmentDate.HasValue &&
+                                      s.EnrollmentDate.Value.Month == date.Month &&
+                                      s.EnrollmentDate.Value.Year == date.Year)
+                    })
+                    .OrderBy(m => m.Month)
+                    .ToList()
             };
 
             return View(model);
