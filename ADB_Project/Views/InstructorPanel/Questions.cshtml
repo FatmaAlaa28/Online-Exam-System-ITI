@@ -6,82 +6,474 @@
     string courseName = ViewBag.CourseName?.ToString() ?? "Unknown Course";
 }
 
-<div class="container mt-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2>Questions for <strong>@courseName</strong></h2>
-        <div>
-            <a asp-action="CreateMCQ" asp-route-courseId="@courseId" class="btn btn-primary me-2">
-                <i class="fas fa-plus"></i> Add MCQ
-            </a>
-            <a asp-action="CreateTF" asp-route-courseId="@courseId" class="btn btn-success">
-                <i class="fas fa-plus"></i> Add T/F
-            </a>
-        </div>
-    </div>
+<style>
+    .page-header {
+        background: linear-gradient(135deg, #233047 0%, #1d2533 47%);
+        color: white;
+        padding: 30px;
+        border-radius: 15px;
+        margin-bottom: 30px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+    }
 
-    @if (Model.Any())
+        .page-header h2 {
+            margin: 0;
+            font-weight: 600;
+        }
+
+    .stats-row {
+        margin-bottom: 30px;
+    }
+
+    .stat-card {
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        text-align: center;
+        transition: all 0.3s ease;
+    }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+        }
+
+        .stat-card i {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .stat-card.mcq i {
+            color: #667eea;
+        }
+
+        .stat-card.tf i {
+            color: #11998e;
+        }
+
+        .stat-card.total i {
+            color: #764ba2;
+        }
+
+        .stat-card.difficulty i {
+            color: #fa709a;
+        }
+
+    .stat-number {
+        font-size: 1.8rem;
+        font-weight: bold;
+        color: #1a1a1a;
+    }
+
+    .stat-label {
+        color: #6c757d;
+        font-size: 0.9rem;
+    }
+
+    .table-card {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        overflow: hidden;
+    }
+
+    .table-header {
+        background: #f8f9fa;
+        padding: 20px;
+        border-bottom: 2px solid #e9ecef;
+    }
+
+    .search-box {
+        position: relative;
+    }
+
+        .search-box input {
+            border-radius: 25px;
+            padding: 10px 20px 10px 45px;
+            border: 2px solid #e9ecef;
+            transition: all 0.3s ease;
+        }
+
+            .search-box input:focus {
+                border-color: #667eea;
+                box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.15);
+            }
+
+        .search-box i {
+            position: absolute;
+            left: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6c757d;
+        }
+
+    .table-responsive {
+        padding: 20px;
+    }
+
+    .custom-table {
+        margin: 0;
+    }
+
+        .custom-table thead th {
+            background: linear-gradient(135deg, #233047 0%, #1d2533 47%);
+            color: white;
+            font-weight: 600;
+            border: none;
+            padding: 15px;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 0.5px;
+        }
+
+        .custom-table tbody tr {
+            transition: all 0.3s ease;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+            .custom-table tbody tr:hover {
+                background-color: #f8f9fa;
+                transform: scale(1.01);
+                box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            }
+
+        .custom-table tbody td {
+            padding: 18px 15px;
+            vertical-align: middle;
+        }
+
+    .question-text {
+        font-weight: 600;
+        color: #2c3e50;
+        font-size: 1.05rem;
+        line-height: 1.5;
+    }
+
+    .question-preview {
+        color: #6c757d;
+        font-size: 0.9rem;
+        margin-top: 5px;
+    }
+
+    .badge-custom {
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-weight: 500;
+        font-size: 0.85rem;
+    }
+
+    .badge-mcq {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+
+    .badge-tf {
+        background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        color: white;
+    }
+
+    .btn-action {
+        padding: 8px 16px;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        border: none;
+    }
+
+        .btn-action:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+    .btn-add {
+        border: none;
+        color: white;
+        padding: 12px 25px;
+        border-radius: 10px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+        .btn-add.primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .btn-add.success {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        }
+
+        .btn-add:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            color: white;
+        }
+
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+    }
+
+        .empty-state i {
+            font-size: 5rem;
+            color: #dee2e6;
+            margin-bottom: 20px;
+        }
+
+        .empty-state h4 {
+            color: #6c757d;
+            margin-bottom: 10px;
+        }
+
+    .modal-header-custom {
+        background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+        color: white;
+    }
+
+    .points-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        font-weight: 600;
+        color: #495057;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 8px;
+    }
+
+   
+</style>
+
+<div class="container-fluid mt-4">
+
+    @if (TempData["Success"] != null)
     {
-        <div class="table-responsive">
-            <table class="table table-striped table-hover align-middle">
-                <thead class="table-dark">
-                    <tr>
-                        <th>Question</th>
-                        <th>Type</th>
-                        <th>Points</th>
-                        <th>Difficulty</th>
-                        <th>Created</th>
-                        <th class="text-center">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var question in Model)
-                    {
-                        <tr>
-                            <td>
-                                <strong>@question.QuestionText.Substring(0, Math.Min(50, question.QuestionText.Length))@(question.QuestionText.Length > 50 ? "..." : "")</strong>
-                            </td>
-                            <td>
-                                <span class="badge @(question.QuestionType == "MCQ" ? "bg-primary" : "bg-info")">@question.QuestionType</span>
-                            </td>
-                            <td>@question.Points</td>
-                            <td>
-                                <span class="badge bg-@(question.DifficultyLevel == "Easy" ? "success" : question.DifficultyLevel == "Medium" ? "warning" : "danger")">
-                                    @question.DifficultyLevel
-                                </span>
-                            </td>
-                            <td>@question.CreatedDate?.ToString("MMM dd")</td>
-                            <td class="text-center">
-                                <a asp-action="EditQuestion" asp-route-id="@question.QuestionId"
-                                   class="btn btn-sm btn-outline-primary me-1" title="Edit">
-                                    <i class="fas fa-edit"></i>
-                                </a>
-                                <form asp-action="DeleteQuestion" asp-route-id="@question.QuestionId" method="post"
-                                      class="d-inline" onsubmit="return confirm('Delete this question?')">
-                                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </form>
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
+        <div class="alert alert-success alert-dismissible fade show" style="border-radius: 10px; border-left: 4px solid #28a745;">
+            <i class="fas fa-check-circle me-2"></i>@TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     }
-    else
+    @if (TempData["Error"] != null)
     {
-        <div class="text-center py-5">
-            <i class="fas fa-question-circle fa-5x text-muted mb-4"></i>
-            <h4>No questions yet</h4>
-            <p class="text-muted">Start by adding your first MCQ or True/False question.</p>
+        <div class="alert alert-danger alert-dismissible fade show" style="border-radius: 10px; border-left: 4px solid #dc3545;">
+            <i class="fas fa-exclamation-circle me-2"></i>@TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="d-flex justify-content-between align-items-center flex-wrap">
             <div>
-                <a asp-action="CreateMCQ" asp-route-courseId="@courseId" class="btn btn-primary btn-lg me-3">
-                    <i class="fas fa-list"></i> Add MCQ
+                <h2><i class="fas fa-question-circle me-2"></i>Questions for <strong>@courseName</strong></h2>
+                <p class="mb-0 mt-2" style="opacity: 0.9;">Manage and organize your course questions</p>
+            </div>
+            <div class="d-flex gap-2 mt-3 mt-md-0">
+                <a asp-action="CreateMCQ" asp-route-courseId="@courseId" class="btn btn-add primary">
+                    <i class="fas fa-plus-circle me-2"></i>Add MCQ
                 </a>
-                <a asp-action="CreateTF" asp-route-courseId="@courseId" class="btn btn-success btn-lg">
-                    <i class="fas fa-check-double"></i> Add T/F
+                <a asp-action="CreateTF" asp-route-courseId="@courseId" class="btn btn-add success">
+                    <i class="fas fa-plus-circle me-2"></i>Add T/F
                 </a>
             </div>
         </div>
-    }
+    </div>
+
+    <!-- Stats Row -->
+    <div class="row stats-row">
+        <div class="col-lg-3 col-md-6">
+            <div class="stat-card total">
+                <i class="fas fa-list-alt"></i>
+                <div class="stat-number">@Model.Count()</div>
+                <div class="stat-label">Total Questions</div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6">
+            <div class="stat-card mcq">
+                <i class="fas fa-check-square"></i>
+                <div class="stat-number">@Model.Count(q => q.QuestionType == "MCQ")</div>
+                <div class="stat-label">Multiple Choice</div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6">
+            <div class="stat-card tf">
+                <i class="fas fa-toggle-on"></i>
+                <div class="stat-number">@Model.Count(q => q.QuestionType == "TF")</div>
+                <div class="stat-label">True/False</div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6">
+            <div class="stat-card difficulty">
+                <i class="fas fa-chart-line"></i>
+                <div class="stat-number">@(Model.Any() ? Model.Average(q => q.Points).ToString() : "0")</div>
+                <div class="stat-label">Avg Points</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Table Card -->
+    <div class="table-card">
+        <div class="table-header">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <h5 class="mb-0"><i class="fas fa-clipboard-list me-2"></i>Questions List</h5>
+                </div>
+                <div class="col-md-6">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="searchInput" class="form-control" placeholder="Search questions...">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            @if (Model.Any())
+            {
+                <table class="table custom-table" id="questionsTable">
+                    <thead>
+                        <tr>
+                            <th style="width: 40%;">Question</th>
+                            <th>Type</th>
+                            <th>Points</th>
+                            <th>Difficulty</th>
+                            <th>Created</th>
+                            <th style="width: 150px;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var question in Model)
+                        {
+                            <tr>
+                                <td>
+                                    <div class="question-text">
+                                        <i class="fas fa-quote-left me-2 text-muted" style="font-size: 0.8rem;"></i>
+                                        @question.QuestionText.Substring(0, Math.Min(80, question.QuestionText.Length))@(question.QuestionText.Length > 80 ? "..." : "")
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="badge badge-custom @(question.QuestionType == "MCQ" ? "badge-mcq" : "badge-tf")">
+                                        <i class="fas fa-@(question.QuestionType == "MCQ" ? "check-square" : "toggle-on") me-1"></i>
+                                        @question.QuestionType
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="points-badge">
+                                        <i class="fas fa-star text-warning"></i>
+                                        @question.Points
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="badge badge-custom bg-@(question.DifficultyLevel == "Easy" ? "success" : question.DifficultyLevel == "Medium" ? "warning" : "danger")">
+                                        <i class="fas fa-@(question.DifficultyLevel == "Easy" ? "smile" : question.DifficultyLevel == "Medium" ? "meh" : "frown") me-1"></i>
+                                        @question.DifficultyLevel
+                                    </span>
+                                </td>
+                                <td>
+                                    <small class="text-muted">
+                                        <i class="far fa-calendar-alt me-1"></i>
+                                        @question.CreatedDate?.ToString("MMM dd, yyyy")
+                                    </small>
+                                </td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <a asp-action="EditQuestion" asp-route-id="@question.QuestionId"
+                                           class="btn btn-sm btn-warning btn-action" title="Edit">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <button type="button" class="btn btn-sm btn-danger btn-action"
+                                                onclick="showDeleteModal(@question.QuestionId, '@question.QuestionText.Substring(0, Math.Min(50, question.QuestionText.Length))')"
+                                                title="Delete">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+            else
+            {
+                <div class="empty-state">
+                    <i class="fas fa-question-circle"></i>
+                    <h4>No Questions Yet</h4>
+                    <p class="text-muted">Start by creating your first MCQ or True/False question</p>
+                    <div class="d-flex gap-3 justify-content-center mt-4">
+                        <a asp-action="CreateMCQ" asp-route-courseId="@courseId" class="btn btn-add primary btn-lg">
+                            <i class="fas fa-list me-2"></i>Add MCQ
+                        </a>
+                        <a asp-action="CreateTF" asp-route-courseId="@courseId" class="btn btn-add success btn-lg">
+                            <i class="fas fa-check-double me-2"></i>Add T/F
+                        </a>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
 </div>
+
+<!-- Delete Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border-radius: 15px; overflow: hidden;">
+            <div class="modal-header modal-header-custom">
+                <h5 class="modal-title">
+                    <i class="fas fa-exclamation-triangle me-2"></i>Confirm Deletion
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" style="padding: 30px;">
+                <p class="mb-3">Are you sure you want to delete this question?</p>
+                <div class="alert alert-light" style="border-radius: 10px; border-left: 4px solid #667eea;">
+                    <strong id="questionPreview"></strong>
+                </div>
+                <div class="alert alert-warning" style="border-radius: 10px;">
+                    <i class="fas fa-info-circle me-2"></i>
+                    <small>This action cannot be undone. The question will be permanently removed.</small>
+                </div>
+            </div>
+            <div class="modal-footer" style="border-top: 1px solid #dee2e6;">
+                <form id="deleteForm" asp-action="DeleteQuestion" method="post" class="w-100">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="id" id="questionIdInput" />
+                    <div class="d-flex gap-2 justify-content-end">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                            <i class="fas fa-times me-2"></i>Cancel
+                        </button>
+                        <button type="submit" class="btn btn-danger">
+                            <i class="fas fa-trash me-2"></i>Yes, Delete
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Search functionality
+        document.getElementById('searchInput')?.addEventListener('keyup', function() {
+            const searchValue = this.value.toLowerCase();
+            const tableRows = document.querySelectorAll('#questionsTable tbody tr');
+
+            tableRows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(searchValue) ? '' : 'none';
+            });
+        });
+
+        // Delete modal function
+        function showDeleteModal(questionId, questionText) {
+            document.getElementById('questionIdInput').value = questionId;
+            document.getElementById('questionPreview').textContent = questionText + (questionText.length >= 50 ? '...' : '');
+
+            var modal = new bootstrap.Modal(document.getElementById('deleteModal'));
+            modal.show();
+        }
+    </script>
+}

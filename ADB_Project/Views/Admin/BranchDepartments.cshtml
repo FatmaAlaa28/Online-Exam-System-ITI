@@ -4,36 +4,384 @@
     ViewData["Title"] = "Manage Branch-Department Assignments";
 }
 
-<h2>Manage Branch-Department Assignments</h2>
+<style>
+    .page-header {
+        background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+        color: white;
+        padding: 30px;
+        border-radius: 15px;
+        margin-bottom: 30px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+    }
 
-<p>
-    <a asp-action="AssignDepartmentToBranch" class="btn btn-primary">Assign New</a>
-</p>
-
-<table class="table table-striped">
-    <thead>
-        <tr>
-            <th>Branch</th>
-            <th>Department</th>
-            <th>Created Date</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
-            <tr>
-                <td>@item.Branch.BranchName</td>
-                <td>@item.Dept.DeptName</td>
-                <td>@item.CreatedDate</td>
-                <td>
-                    <form asp-action="RemoveDepartmentFromBranch" method="post" style="display:inline;">
-                        <input type="hidden" name="branchId" value="@item.BranchId" />
-                        <input type="hidden" name="deptId" value="@item.DeptId" />
-                        <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure?')">Remove</button>
-                    </form>
-                </td>
-            </tr>
+        .page-header h2 {
+            margin: 0;
+            font-weight: 600;
         }
-    </tbody>
-</table>
+
+    .stats-row {
+        margin-bottom: 30px;
+    }
+
+    .stat-card {
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        text-align: center;
+    }
+
+        .stat-card i {
+            font-size: 2rem;
+            color: #1e3c72;
+            margin-bottom: 10px;
+        }
+
+    .stat-number {
+        font-size: 1.8rem;
+        font-weight: bold;
+        color: #1e3c72;
+    }
+
+    .stat-label {
+        color: #6c757d;
+        font-size: 0.9rem;
+    }
+
+    .table-card {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        overflow: hidden;
+    }
+
+    .table-header {
+        background: #f8f9fa;
+        padding: 20px;
+        border-bottom: 2px solid #e9ecef;
+    }
+
+    .search-box {
+        position: relative;
+    }
+
+        .search-box input {
+            border-radius: 25px;
+            padding: 10px 20px 10px 45px;
+            border: 2px solid #e9ecef;
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6c757d;
+        }
+
+    .table-responsive {
+        padding: 20px;
+    }
+
+    .custom-table {
+        margin: 0;
+    }
+
+        .custom-table thead th {
+            background: #1e3c72;
+            color: white;
+            font-weight: 600;
+            border: none;
+            padding: 15px;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 0.5px;
+        }
+
+        .custom-table tbody tr {
+            transition: all 0.3s ease;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+            .custom-table tbody tr:hover {
+                background-color: #f8f9fa;
+                transform: scale(1.01);
+                box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            }
+
+        .custom-table tbody td {
+            padding: 18px 15px;
+            vertical-align: middle;
+        }
+
+    .entity-badge {
+        display: inline-block;
+        padding: 8px 16px;
+        border-radius: 10px;
+        font-weight: 500;
+        font-size: 0.95rem;
+    }
+
+    .branch-badge {
+        background: #e3f2fd;
+        color: #1976d2;
+        border: 2px solid #90caf9;
+    }
+
+    .dept-badge {
+        background: #f3e5f5;
+        color: #7b1fa2;
+        border: 2px solid #ce93d8;
+    }
+
+    .date-text {
+        color: #6c757d;
+        font-size: 0.9rem;
+    }
+
+    .btn-action {
+        padding: 8px 16px;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+        .btn-action:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+    .btn-add {
+        background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+        border: none;
+        color: white;
+        padding: 12px 25px;
+        border-radius: 10px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+        .btn-add:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(30, 60, 114, 0.3);
+            color: white;
+        }
+
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+    }
+
+        .empty-state i {
+            font-size: 5rem;
+            color: #dee2e6;
+            margin-bottom: 20px;
+        }
+
+        .empty-state h4 {
+            color: #6c757d;
+            margin-bottom: 10px;
+        }
+
+    .modal-header-custom {
+        background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+        color: white;
+    }
+</style>
+
+<div class="container-fluid mt-4">
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" style="border-radius: 10px; border-left: 4px solid #28a745;">
+            <i class="fas fa-check-circle me-2"></i>@TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" style="border-radius: 10px; border-left: 4px solid #dc3545;">
+            <i class="fas fa-exclamation-circle me-2"></i>@TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h2><i class="fas fa-link me-2"></i>Branch-Department Assignments</h2>
+                <p class="mb-0 mt-2" style="opacity: 0.9;">Manage department assignments to branches</p>
+            </div>
+            <a asp-action="AssignDepartmentToBranch" class="btn btn-add">
+                <i class="fas fa-plus-circle me-2"></i>Assign New
+            </a>
+        </div>
+    </div>
+
+    <!-- Stats Row -->
+    <div class="row stats-row">
+        <div class="col-md-4">
+            <div class="stat-card">
+                <i class="fas fa-link"></i>
+                <div class="stat-number">@Model.Count()</div>
+                <div class="stat-label">Total Assignments</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-card">
+                <i class="fas fa-code-branch"></i>
+                <div class="stat-number">@Model.Select(a => a.BranchId).Distinct().Count()</div>
+                <div class="stat-label">Active Branches</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-card">
+                <i class="fas fa-building"></i>
+                <div class="stat-number">@Model.Select(a => a.DeptId).Distinct().Count()</div>
+                <div class="stat-label">Assigned Departments</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Table Card -->
+    <div class="table-card">
+        <div class="table-header">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <h5 class="mb-0"><i class="fas fa-list me-2"></i>Assignments List</h5>
+                </div>
+                <div class="col-md-6">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="searchInput" class="form-control" placeholder="Search by branch or department...">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            @if (Model.Any())
+            {
+                <table class="table custom-table" id="assignmentsTable">
+                    <thead>
+                        <tr>
+                            <th>Branch</th>
+                            <th>Department</th>
+                            <th>Assignment Date</th>
+                            <th style="width: 150px;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>
+                                    <span class="entity-badge branch-badge">
+                                        <i class="fas fa-code-branch me-2"></i>@item.Branch.BranchName
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="entity-badge dept-badge">
+                                        <i class="fas fa-building me-2"></i>@item.Dept.DeptName
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="date-text">
+                                        <i class="fas fa-calendar-alt me-2"></i>@item.CreatedDate.ToString()
+                                    </span>
+                                </td>
+                                <td>
+                                    <button type="button" class="btn btn-sm btn-danger btn-action" onclick="showRemoveModal(@item.BranchId, @item.DeptId, '@item.Branch.BranchName', '@item.Dept.DeptName')">
+                                        <i class="fas fa-unlink me-1"></i>Remove
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+            else
+            {
+                <div class="empty-state">
+                    <i class="fas fa-link"></i>
+                    <h4>No Assignments Found</h4>
+                    <p class="text-muted">Start by creating your first branch-department assignment</p>
+                    <a asp-action="AssignDepartmentToBranch" class="btn btn-add mt-3">
+                        <i class="fas fa-plus-circle me-2"></i>Create First Assignment
+                    </a>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Remove Modal -->
+<div class="modal fade" id="removeModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border-radius: 15px; overflow: hidden;">
+            <div class="modal-header modal-header-custom">
+                <h5 class="modal-title">
+                    <i class="fas fa-exclamation-triangle me-2"></i>Confirm Removal
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" style="padding: 30px;">
+                <p class="mb-3">Are you sure you want to remove this assignment?</p>
+                <div class="text-center mb-3">
+                    <span class="entity-badge branch-badge mb-2" id="modalBranchName"></span>
+                    <div class="my-2">
+                        <i class="fas fa-arrow-down" style="color: #6c757d;"></i>
+                    </div>
+                    <span class="entity-badge dept-badge" id="modalDeptName"></span>
+                </div>
+                <div class="alert alert-warning" style="border-radius: 10px;">
+                    <i class="fas fa-info-circle me-2"></i>
+                    <small>This will unlink the department from the branch.</small>
+                </div>
+            </div>
+            <div class="modal-footer" style="border-top: 1px solid #dee2e6;">
+                <form id="removeForm" asp-action="RemoveDepartmentFromBranch" method="post" class="w-100">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="branchId" id="modalBranchId" />
+                    <input type="hidden" name="deptId" id="modalDeptId" />
+                    <div class="d-flex gap-2 justify-content-end">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                            <i class="fas fa-times me-2"></i>Cancel
+                        </button>
+                        <button type="submit" class="btn btn-danger">
+                            <i class="fas fa-unlink me-2"></i>Yes, Remove
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Search functionality
+        document.getElementById('searchInput')?.addEventListener('keyup', function() {
+            const searchValue = this.value.toLowerCase();
+            const tableRows = document.querySelectorAll('#assignmentsTable tbody tr');
+
+            tableRows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(searchValue) ? '' : 'none';
+            });
+        });
+
+        // Remove modal function
+        function showRemoveModal(branchId, deptId, branchName, deptName) {
+            document.getElementById('modalBranchId').value = branchId;
+            document.getElementById('modalDeptId').value = deptId;
+            document.getElementById('modalBranchName').innerHTML = '<i class="fas fa-code-branch me-2"></i>' + branchName;
+            document.getElementById('modalDeptName').innerHTML = '<i class="fas fa-building me-2"></i>' + deptName;
+
+            var modal = new bootstrap.Modal(document.getElementById('removeModal'));
+            modal.show();
+        }
+    </script>
+}
