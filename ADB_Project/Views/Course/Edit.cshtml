@@ -1,35 +1,206 @@
 ﻿@model ADB_Project.Models.Course
 
-<h2>Edit Course</h2>
+@{
+    ViewData["Title"] = "Edit Course";
+}
 
-<form asp-action="Edit" method="post">
-    <input type="hidden" asp-for="CourseId" />
+<style>
+    .page-header {
+        background: linear-gradient(135deg, #233047 0%, #1d2533 100%);
+        color: white;
+        padding: 30px;
+        border-radius: 15px;
+        margin-bottom: 30px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+    }
 
-    <div class="mb-3">
-        <label>Course Name</label>
-        <input asp-for="CourseName" class="form-control" />
+        .page-header h2 {
+            margin: 0;
+            font-weight: 600;
+        }
+
+    .form-card {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        padding: 40px;
+    }
+
+    .form-section {
+        margin-bottom: 25px;
+    }
+
+        .form-section label {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 8px;
+            display: block;
+            font-size: 0.95rem;
+        }
+
+            .form-section label i {
+                margin-right: 8px;
+                color: #1e3c72;
+            }
+
+    .form-control {
+        border: 2px solid #e9ecef;
+        border-radius: 10px;
+        padding: 12px 18px;
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+    }
+
+        .form-control:focus {
+            border-color: #4A90E2;
+            box-shadow: 0 0 0 0.2rem rgba(74, 144, 226, 0.15);
+        }
+
+    textarea.form-control {
+        min-height: 120px;
+        resize: vertical;
+    }
+
+    .btn-custom {
+        padding: 12px 30px;
+        border-radius: 25px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        border: none;
+        font-size: 1rem;
+    }
+
+    .btn-update {
+        background: linear-gradient(135deg, #27AE60, #1E8449);
+        color: white;
+    }
+
+        .btn-update:hover {
+            background: linear-gradient(135deg, #1E8449, #186A3B);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(39, 174, 96, 0.3);
+            color: white;
+        }
+
+    .btn-cancel {
+        background: #6c757d;
+        color: white;
+    }
+
+        .btn-cancel:hover {
+            background: #5a6268;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(108, 117, 125, 0.3);
+            color: white;
+        }
+
+    .form-actions {
+        display: flex;
+        gap: 15px;
+        margin-top: 35px;
+        padding-top: 25px;
+        border-top: 2px solid #e9ecef;
+    }
+
+    .required-indicator {
+        color: #dc3545;
+        margin-left: 3px;
+    }
+
+    .form-hint {
+        font-size: 0.85rem;
+        color: #6c757d;
+        margin-top: 5px;
+    }
+
+    
+</style>
+
+<div class="container mt-4">
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <h2><i class="fas fa-edit me-2"></i>Edit Course</h2>
+            <a asp-action="Index" class="btn btn-light btn-sm">
+                <i class="fas fa-arrow-left me-2"></i>Back to Courses
+            </a>
+        </div>
     </div>
 
-    <div class="mb-3">
-        <label>Course Code</label>
-        <input asp-for="CourseCode" class="form-control" />
-    </div>
+    <!-- Form Card -->
+    <div class="form-card">
+        <form asp-action="Edit" method="post">
+            <input type="hidden" asp-for="CourseId" />
 
-    <div class="mb-3">
-        <label>Description</label>
-        <textarea asp-for="Description" class="form-control"></textarea>
-    </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-section">
+                        <label>
+                            <i class="fas fa-book"></i>Course Name<span class="required-indicator">*</span>
+                        </label>
+                        <input asp-for="CourseName" class="form-control" placeholder="e.g., Advanced Database Systems" required />
+                        <span asp-validation-for="CourseName" class="text-danger"></span>
+                    </div>
+                </div>
 
-    <div class="mb-3">
-        <label>Max Degree</label>
-        <input asp-for="MaxDegree" class="form-control" />
-    </div>
+                <div class="col-md-6">
+                    <div class="form-section">
+                        <label>
+                            <i class="fas fa-code"></i>Course Code<span class="required-indicator">*</span>
+                        </label>
+                        <input asp-for="CourseCode" class="form-control" placeholder="e.g., CS401" required />
+                        <span asp-validation-for="CourseCode" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
 
-    <div class="mb-3">
-        <label>Credit Hours</label>
-        <input asp-for="CreditHours" class="form-control" />
-    </div>
+            <div class="form-section">
+                <label>
+                    <i class="fas fa-align-left"></i>Description
+                </label>
+                <textarea asp-for="Description" class="form-control" placeholder="Enter course description and learning objectives..."></textarea>
+                <span asp-validation-for="Description" class="text-danger"></span>
+                <div class="form-hint">Provide a brief overview of what students will learn in this course.</div>
+            </div>
 
-    <button type="submit" class="btn btn-primary">Update</button>
-    <a asp-action="Index" class="btn btn-secondary">Back</a>
-</form>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-section">
+                        <label>
+                            <i class="fas fa-award"></i>Max Degree
+                        </label>
+                        <input asp-for="MaxDegree" type="number" class="form-control" placeholder="e.g., 100" min="0" />
+                        <span asp-validation-for="MaxDegree" class="text-danger"></span>
+                        <div class="form-hint">Maximum achievable grade for this course.</div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="form-section">
+                        <label>
+                            <i class="fas fa-clock"></i>Credit Hours<span class="required-indicator">*</span>
+                        </label>
+                        <input asp-for="CreditHours" type="number" class="form-control" placeholder="e.g., 3" min="1" required />
+                        <span asp-validation-for="CreditHours" class="text-danger"></span>
+                        <div class="form-hint">Number of credit hours for this course.</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-custom btn-update">
+                    <i class="fas fa-save me-2"></i>Update Course
+                </button>
+                <a asp-action="Index" class="btn btn-custom btn-cancel">
+                    <i class="fas fa-times me-2"></i>Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

@@ -1,12 +1,287 @@
 ﻿@model ADB_Project.Models.Course
 
-<h2>Course Details</h2>
+@{
+    ViewData["Title"] = "Course Details";
+}
 
-<p><b>Name:</b> @Model.CourseName</p>
-<p><b>Code:</b> @Model.CourseCode</p>
-<p><b>Description:</b> @Model.Description</p>
-<p><b>Max Degree:</b> @Model.MaxDegree</p>
-<p><b>Credit Hours:</b> @Model.CreditHours</p>
+<style>
+    .page-header {
+        background: linear-gradient(135deg, #233047 0%, #1d2533 100%);
+        color: white;
+        padding: 30px;
+        border-radius: 15px;
+        margin-bottom: 30px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+    }
 
-<a asp-action="Edit" asp-route-id="@Model.CourseId" class="btn btn-warning">Edit</a>
-<a asp-action="Index" class="btn btn-secondary">Back</a>
+        .page-header h2 {
+            margin: 0;
+            font-weight: 600;
+            font-size: 1.8rem;
+        }
+
+        .page-header .course-code {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            display: inline-block;
+            margin-top: 10px;
+        }
+
+    .details-card {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        overflow: hidden;
+    }
+
+    .details-header {
+        background: #f8f9fa;
+        padding: 20px 30px;
+        border-bottom: 2px solid #e9ecef;
+    }
+
+        .details-header h4 {
+            margin: 0;
+            color: #2c3e50;
+            font-weight: 600;
+        }
+
+    .details-body {
+        padding: 30px;
+    }
+
+    .detail-row {
+        display: flex;
+        padding: 20px 0;
+        border-bottom: 1px solid #f0f0f0;
+        align-items: start;
+    }
+
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+
+    .detail-label {
+        font-weight: 600;
+        color: #2c3e50;
+        width: 200px;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        font-size: 0.95rem;
+    }
+
+        .detail-label i {
+            margin-right: 10px;
+            color: #4A90E2;
+            width: 20px;
+            text-align: center;
+        }
+
+    .detail-value {
+        color: #495057;
+        flex-grow: 1;
+        line-height: 1.6;
+    }
+
+        .detail-value.empty {
+            color: #6c757d;
+            font-style: italic;
+        }
+
+    .action-buttons {
+        display: flex;
+        gap: 15px;
+        margin-top: 30px;
+        padding-top: 25px;
+        border-top: 2px solid #e9ecef;
+    }
+
+    .btn-custom {
+        padding: 12px 30px;
+        border-radius: 25px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        border: none;
+        font-size: 1rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .btn-edit {
+        background: linear-gradient(135deg, #F39C12, #D68910);
+        color: white;
+    }
+
+        .btn-edit:hover {
+            background: linear-gradient(135deg, #D68910, #B9770E);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(243, 156, 18, 0.3);
+            color: white;
+        }
+
+    .btn-back {
+        background: #6c757d;
+        color: white;
+    }
+
+        .btn-back:hover {
+            background: #5a6268;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(108, 117, 125, 0.3);
+            color: white;
+        }
+
+    .stat-badge {
+        display: inline-block;
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+
+    .badge-hours {
+        background: #E3F2FD;
+        color: #1976D2;
+    }
+
+    .badge-degree {
+        background: #FFF3E0;
+        color: #F57C00;
+    }
+
+    
+</style>
+
+<div class="container mt-4">
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h2><i class="fas fa-info-circle me-2"></i>@Model.CourseName</h2>
+                <span class="course-code"><i class="fas fa-tag me-2"></i>@Model.CourseCode</span>
+            </div>
+            <a asp-action="Index" class="btn btn-light btn-sm">
+                <i class="fas fa-arrow-left me-2"></i>Back to Courses
+            </a>
+        </div>
+    </div>
+
+    <!-- Details Card -->
+    <div class="details-card">
+        <div class="details-header">
+            <h4><i class="fas fa-file-alt me-2"></i>Course Information</h4>
+        </div>
+
+        <div class="details-body">
+            <div class="detail-row">
+                <div class="detail-label">
+                    <i class="fas fa-book"></i>
+                    Course Name
+                </div>
+                <div class="detail-value">
+                    <strong>@Model.CourseName</strong>
+                </div>
+            </div>
+
+            <div class="detail-row">
+                <div class="detail-label">
+                    <i class="fas fa-code"></i>
+                    Course Code
+                </div>
+                <div class="detail-value">
+                    <span class="badge bg-primary">@Model.CourseCode</span>
+                </div>
+            </div>
+
+            <div class="detail-row">
+                <div class="detail-label">
+                    <i class="fas fa-align-left"></i>
+                    Description
+                </div>
+                <div class="detail-value @(string.IsNullOrWhiteSpace(Model.Description) ? "empty" : "")">
+                    @(string.IsNullOrWhiteSpace(Model.Description) ? "No description available" : Model.Description)
+                </div>
+            </div>
+
+            <div class="detail-row">
+                <div class="detail-label">
+                    <i class="fas fa-clock"></i>
+                    Credit Hours
+                </div>
+                <div class="detail-value">
+                    <span class="stat-badge badge-hours">
+                        <i class="fas fa-clock me-1"></i>@Model.CreditHours Hours
+                    </span>
+                </div>
+            </div>
+
+           
+                <div class="detail-row">
+                    <div class="detail-label">
+                        <i class="fas fa-award"></i>
+                        Max Degree
+                    </div>
+                    <div class="detail-value">
+                        <span class="stat-badge badge-degree">
+                            <i class="fas fa-trophy me-1"></i>@Model.MaxDegree Points
+                        </span>
+                    </div>
+                </div>
+            
+
+            @if (Model.IsActive.HasValue)
+            {
+                <div class="detail-row">
+                    <div class="detail-label">
+                        <i class="fas fa-toggle-on"></i>
+                        Status
+                    </div>
+                    <div class="detail-value">
+                        <span class="badge @(Model.IsActive == true ? "bg-success" : "bg-danger")">
+                            @(Model.IsActive == true ? "Active" : "Inactive")
+                        </span>
+                    </div>
+                </div>
+            }
+
+            @if (Model.CreatedDate.HasValue)
+            {
+                <div class="detail-row">
+                    <div class="detail-label">
+                        <i class="fas fa-calendar-plus"></i>
+                        Created Date
+                    </div>
+                    <div class="detail-value">
+                        @Model.CreatedDate.Value.ToString("MMMM dd, yyyy 'at' hh:mm tt")
+                    </div>
+                </div>
+            }
+
+            @if (Model.ModifiedDate.HasValue)
+            {
+                <div class="detail-row">
+                    <div class="detail-label">
+                        <i class="fas fa-calendar-plus"></i>
+                        Last Updated
+                    </div>
+                    <div class="detail-value">
+                        @Model.ModifiedDate.Value.ToString("MMMM dd, yyyy 'at' hh:mm tt")
+                    </div>
+                </div>
+            }
+
+            <div class="action-buttons">
+                <a asp-action="Edit" asp-route-id="@Model.CourseId" class="btn btn-custom btn-edit">
+                    <i class="fas fa-edit"></i>Edit Course
+                </a>
+                <a asp-action="Index" class="btn btn-custom btn-back">
+                    <i class="fas fa-list"></i>Back to List
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

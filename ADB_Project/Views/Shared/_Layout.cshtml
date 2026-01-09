@@ -171,16 +171,16 @@
             }
             else if (User.IsInRole("Instructor"))
             {
+                <a class="@(controller == "InstructorPanel" && action == "Dashboard" ? "active" : "")" asp-controller="InstructorPanel" asp-action="Dashboard">
+                    <i class="fas fa-book"></i> Instructor Panel
+                </a>
+                <a class="@(controller == "Course" && action == "Index" ? "active" : "")" asp-controller="Course" asp-action="Index">
+                    <i class="fas fa-book"></i> Manage Courses
+                </a>
                 <a class="@(controller == "Student" && action == "Students" ? "active" : "")" asp-controller="Student" asp-action="Students">
                     <i class="fas fa-user-graduate"></i> Manage Students
                 </a>
 
-                <a class="@(controller == "Course" && action == "Index" ? "active" : "")" asp-controller="Course" asp-action="Index">
-                    <i class="fas fa-book"></i> Manage Courses
-                </a>
-                <a class="@(controller == "InstructorPanel" && action == "Dashboard" ? "active" : "")" asp-controller="InstructorPanel" asp-action="Dashboard">
-                    <i class="fas fa-book"></i> Instructor Panel
-                </a>
             }
             else if (User.IsInRole("Admin"))
             {

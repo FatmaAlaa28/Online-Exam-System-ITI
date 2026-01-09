@@ -758,5 +758,35 @@ public async Task<IActionResult> Dashboard()
 
             return stats;
         }
+
+        public async Task<IActionResult> Details(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var course = await _context.Courses
+                .Include(c => c.StudentCourses)
+                    .ThenInclude(sc => sc.Student)
+                .Include(c => c.Exams)
+                    .ThenInclude(e => e.ExamQuestions)
+                .Include(c => c.Questions)
+                .FirstOrDefaultAsync(c => c.CourseId == id);
+
+            if (course == null)
+            {
+                return NotFound();
+            }
+
+            // Optional: Verify the instructor owns this course
+            // var instructorId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            // if (course.InstructorId != instructorId)
+            // {
+            //     return Forbid();
+            // }
+
+            return View(course);
+        }
     }
 }
