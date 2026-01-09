@@ -4,81 +4,386 @@
     ViewData["Title"] = "Create New Student";
 }
 
+<style>
+    .page-header {
+        background: linear-gradient(135deg, #233047 0%, #1d2533 100%);
+        color: white;
+        padding: 30px;
+        border-radius: 15px;
+        margin-bottom: 30px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+    }
+
+        .page-header h2 {
+            margin: 0;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+    .form-card {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        overflow: hidden;
+    }
+
+    .form-card-header {
+        background: #f8f9fa;
+        padding: 20px 30px;
+        border-bottom: 2px solid #e9ecef;
+    }
+
+        .form-card-header h4 {
+            margin: 0;
+            color: #2c3e50;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+    .form-card-body {
+        padding: 35px;
+    }
+
+    .form-section {
+        margin-bottom: 25px;
+    }
+
+        .form-section label {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 8px;
+            display: block;
+            font-size: 0.95rem;
+        }
+
+            .form-section label i {
+                margin-right: 8px;
+                color: #4A90E2;
+                width: 18px;
+                text-align: center;
+            }
+
+    .form-control, .form-select {
+        border: 2px solid #e9ecef;
+        border-radius: 10px;
+        padding: 12px 18px;
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+    }
+
+        .form-control:focus, .form-select:focus {
+            border-color: #4A90E2;
+            box-shadow: 0 0 0 0.2rem rgba(74, 144, 226, 0.15);
+        }
+
+    .form-hint {
+        font-size: 0.85rem;
+        color: #6c757d;
+        margin-top: 5px;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+        .form-hint i {
+            font-size: 0.75rem;
+        }
+
+    .required-indicator {
+        color: #dc3545;
+        margin-left: 3px;
+    }
+
+    .form-check {
+        padding: 15px 20px;
+        background: #f8f9fa;
+        border-radius: 10px;
+        border: 2px solid #e9ecef;
+        transition: all 0.3s ease;
+    }
+
+        .form-check:hover {
+            background: #e9ecef;
+        }
+
+    .form-check-input {
+        width: 20px;
+        height: 20px;
+        margin-top: 0;
+        cursor: pointer;
+    }
+
+        .form-check-input:checked {
+            background-color: #27AE60;
+            border-color: #27AE60;
+        }
+
+    .form-check-label {
+        font-weight: 600;
+        color: #2c3e50;
+        cursor: pointer;
+        margin-left: 10px;
+    }
+
+    .section-divider {
+        border-top: 2px solid #e9ecef;
+        margin: 35px 0;
+        position: relative;
+    }
+
+        .section-divider::after {
+            content: attr(data-title);
+            position: absolute;
+            top: -12px;
+            left: 20px;
+            background: white;
+            padding: 0 15px;
+            color: #6c757d;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+    .form-actions {
+        display: flex;
+        gap: 15px;
+        margin-top: 35px;
+        padding-top: 25px;
+        border-top: 2px solid #e9ecef;
+    }
+
+    .btn-custom {
+        padding: 12px 30px;
+        border-radius: 25px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        border: none;
+        font-size: 1rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .btn-create {
+        background: linear-gradient(135deg, #3498DB, #2980B9);
+        color: white;
+    }
+
+        .btn-create:hover {
+            background: linear-gradient(135deg, #2980B9, #21618C);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(52, 152, 219, 0.3);
+            color: white;
+        }
+
+    .btn-cancel {
+        background: #6c757d;
+        color: white;
+    }
+
+        .btn-cancel:hover {
+            background: #5a6268;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(108, 117, 125, 0.3);
+            color: white;
+        }
+
+    .alert-custom {
+        border-radius: 10px;
+        border: none;
+        padding: 15px 20px;
+        margin-bottom: 25px;
+    }
+
+    .alert-danger-custom {
+        background: #fee;
+        color: #c33;
+        border-left: 4px solid #dc3545;
+    }
+
+    .password-wrapper {
+        position: relative;
+    }
+
+    .password-toggle {
+        position: absolute;
+        right: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        color: #6c757d;
+        cursor: pointer;
+        padding: 5px;
+        transition: color 0.2s;
+    }
+
+        .password-toggle:hover {
+            color: #2c3e50;
+        }
+
+    
+</style>
+
 <div class="container mt-4">
-    <div class="card">
-        <div class="card-header">
-            <h4 class="mb-0"><i class="bi bi-person-plus-fill"></i> Create New Student</h4>
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="d-flex justify-content-between align-items-center flex-wrap">
+            <h2>
+                <i class="fas fa-user-plus"></i>
+                Create New Student
+            </h2>
+            <a asp-action="Students" class="btn btn-light btn-sm">
+                <i class="fas fa-arrow-left me-2"></i>Back to Students
+            </a>
         </div>
-        <div class="card-body">
-            <form asp-action="CreateStudent" method="post" novalidate>
-                <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+    </div>
 
-                <div class="row g-3">
-                    @* Student Name *@
+    <!-- Form Card -->
+    <div class="form-card">
+        <div class="form-card-header">
+            <h4>
+                <i class="fas fa-info-circle"></i>
+                Student Details
+            </h4>
+        </div>
+
+        <div class="form-card-body">
+            <form asp-action="CreateStudent" method="post" autocomplete="off" novalidate>
+                <div asp-validation-summary="ModelOnly" class="alert alert-custom alert-danger-custom"></div>
+
+                <!-- Personal Information Section -->
+                <div class="row">
                     <div class="col-md-6">
-                        <label asp-for="StudentName" class="form-label">Full Name</label>
-                        <input asp-for="StudentName" class="form-control" placeholder="e.g., John Smith" />
-                        <span asp-validation-for="StudentName" class="text-danger"></span>
+                        <div class="form-section">
+                            <label>
+                                <i class="fas fa-user"></i>Full Name<span class="required-indicator">*</span>
+                            </label>
+                            <input asp-for="StudentName" class="form-control" placeholder="e.g., John Smith" autocomplete="off" />
+                            <span asp-validation-for="StudentName" class="text-danger"></span>
+                        </div>
                     </div>
 
-                    @* Email *@
                     <div class="col-md-6">
-                        <label asp-for="Email" class="form-label">Email Address</label>
-                        <input asp-for="Email" type="email" class="form-control" placeholder="user@example.com" />
-                        <span asp-validation-for="Email" class="text-danger"></span>
-                    </div>
-
-                    @* Password *@
-                    <div class="col-md-6">
-                        <label for="password" class="form-label">Password</label>
-                        <input name="password" id="password" type="password" class="form-control" required />
-                        <small class="form-text text-muted">The password for the student's login account.</small>
-                    </div>
-
-                    @* Phone *@
-                    <div class="col-md-6">
-                        <label asp-for="Phone" class="form-label">Phone Number</label>
-                        <input asp-for="Phone" class="form-control" />
-                        <span asp-validation-for="Phone" class="text-danger"></span>
-                    </div>
-
-                    @* Department *@
-                    <div class="col-md-6">
-                        <label asp-for="DeptId" class="form-label">Department</label>
-                        <select asp-for="DeptId" class="form-select" asp-items="@(new SelectList(ViewBag.Departments, "DeptId", "DeptName"))">
-                            <option value="">-- Select Department --</option>
-                        </select>
-                        <span asp-validation-for="DeptId" class="text-danger"></span>
-                    </div>
-
-                    @* Branch *@
-                    <div class="col-md-6">
-                        <label asp-for="BranchId" class="form-label">Branch</label>
-                        <select asp-for="BranchId" class="form-select" asp-items="@(new SelectList(ViewBag.Branches, "BranchId", "BranchName"))">
-                            <option value="">-- Select Branch --</option>
-                        </select>
-                        <span asp-validation-for="BranchId" class="text-danger"></span>
-                    </div>
-
-                    @* Enrollment Date *@
-                    <div class="col-md-6">
-                        <label asp-for="EnrollmentDate" class="form-label">Enrollment Date</label>
-                        <input asp-for="EnrollmentDate" type="date" class="form-control" asp-format="{0:yyyy-MM-dd}" />
-                        <span asp-validation-for="EnrollmentDate" class="text-danger"></span>
-                    </div>
-
-                    @* Is Active *@
-                    <div class="col-md-6 align-self-center">
-                        <div class="form-check mt-3">
-                            <input asp-for="IsActive" class="form-check-input" />
-                            <label asp-for="IsActive" class="form-check-label">Is Active</label>
+                        <div class="form-section">
+                            <label>
+                                <i class="fas fa-envelope"></i>Email Address<span class="required-indicator">*</span>
+                            </label>
+                            <input asp-for="Email" type="email" class="form-control" placeholder="student@example.com" autocomplete="off" />
+                            <span asp-validation-for="Email" class="text-danger"></span>
                         </div>
                     </div>
                 </div>
 
-                <div class="mt-4">
-                    <button type="submit" class="btn btn-primary"><i class="bi bi-check-circle"></i> Create Student</button>
-                    <a asp-action="Students" class="btn btn-secondary"><i class="bi bi-x-circle"></i> Cancel</a>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-section">
+                            <label for="password">
+                                <i class="fas fa-lock"></i>Password<span class="required-indicator">*</span>
+                            </label>
+                            <div class="password-wrapper">
+                                <input name="password" id="password" type="password" class="form-control"
+                                       placeholder="Enter secure password" autocomplete="new-password" required />
+                                <button class="password-toggle" type="button" id="togglePassword">
+                                    <i class="fas fa-eye" id="toggleIcon"></i>
+                                </button>
+                            </div>
+                            <div class="form-hint">
+                                <i class="fas fa-info-circle"></i>Minimum 6 characters with uppercase, lowercase, and numbers
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="form-section">
+                            <label>
+                                <i class="fas fa-phone"></i>Phone Number
+                            </label>
+                            <input asp-for="Phone" class="form-control" placeholder="e.g., +20 123 456 7890" autocomplete="off" />
+                            <span asp-validation-for="Phone" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Academic Information Section -->
+                <div class="section-divider" data-title="Academic Information"></div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-section">
+                            <label>
+                                <i class="fas fa-building"></i>Department<span class="required-indicator">*</span>
+                            </label>
+                            <select asp-for="DeptId" class="form-select" asp-items="@(new SelectList(ViewBag.Departments, "DeptId", "DeptName"))">
+                                <option value="">-- Select Department --</option>
+                            </select>
+                            <span asp-validation-for="DeptId" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="form-section">
+                            <label>
+                                <i class="fas fa-map-marker-alt"></i>Branch
+                            </label>
+                            <select asp-for="BranchId" class="form-select" asp-items="@(new SelectList(ViewBag.Branches, "BranchId", "BranchName"))">
+                                <option value="">-- Select Branch --</option>
+                            </select>
+                            <span asp-validation-for="BranchId" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Enrollment Information Section -->
+                <div class="section-divider" data-title="Enrollment Information"></div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-section">
+                            <label>
+                                <i class="fas fa-calendar-plus"></i>Enrollment Date<span class="required-indicator">*</span>
+                            </label>
+                            <input asp-for="EnrollmentDate" type="date" class="form-control" asp-format="{0:yyyy-MM-dd}" />
+                            <span asp-validation-for="EnrollmentDate" class="text-danger"></span>
+                            <div class="form-hint">
+                                <i class="fas fa-info-circle"></i>Date when student enrolls in the institution
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Account Status Section -->
+                <div class="section-divider" data-title="Account Status"></div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-section">
+                            <div class="form-check">
+                                <input asp-for="IsActive" class="form-check-input" type="checkbox" checked />
+                                <label asp-for="IsActive" class="form-check-label">
+                                    <i class="fas fa-toggle-on me-2"></i>Active Student Account
+                                </label>
+                            </div>
+                            <div class="form-hint mt-2 ms-2">
+                                <i class="fas fa-info-circle"></i>Inactive students cannot access the system
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-custom btn-create">
+                        <i class="fas fa-check-circle"></i>Create Student
+                    </button>
+                    <a asp-action="Students" class="btn btn-custom btn-cancel">
+                        <i class="fas fa-times"></i>Cancel
+                    </a>
                 </div>
             </form>
         </div>
@@ -89,4 +394,29 @@
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
+    <script>
+        // Toggle password visibility
+        document.getElementById('togglePassword').addEventListener('click', function () {
+            const passwordInput = document.getElementById('password');
+            const toggleIcon = document.getElementById('toggleIcon');
+
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleIcon.classList.remove('fa-eye');
+                toggleIcon.classList.add('fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                toggleIcon.classList.remove('fa-eye-slash');
+                toggleIcon.classList.add('fa-eye');
+            }
+        });
+
+        // Set default enrollment date to today
+        document.addEventListener('DOMContentLoaded', function() {
+            const enrollmentDateInput = document.querySelector('input[name="EnrollmentDate"]');
+            if (enrollmentDateInput && !enrollmentDateInput.value) {
+                enrollmentDateInput.valueAsDate = new Date();
+            }
+        });
+    </script>
 }

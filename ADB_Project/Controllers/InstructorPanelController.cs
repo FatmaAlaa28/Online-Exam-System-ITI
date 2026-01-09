@@ -576,9 +576,30 @@ public async Task<IActionResult> Dashboard()
             var model = new AssignExamVM
             {
                 ExamId = examId,
-                Branches = new SelectList(await _context.Branches.ToListAsync(), "BranchId", "BranchName"),
-                Departments = new SelectList(await _context.Departments.ToListAsync(), "DeptId", "DeptName"),
-                Students = new MultiSelectList(await _context.Students.ToListAsync(), "StudentId", "StudentName")
+
+                Branches = new SelectList(
+                                 await _context.Branches
+                                     .Where(b => b.IsActive)
+                                     .ToListAsync(),
+                                 "BranchId",
+                                 "BranchName"
+                             ),
+
+                Departments = new SelectList(
+                                await _context.Departments
+                                    .Where(d => d.IsActive)
+                                    .ToListAsync(),
+                                "DeptId",
+                                "DeptName"
+                            ),
+
+                Students = new MultiSelectList(
+                             await _context.Students
+                                 .Where(s => s.IsActive)
+                                 .ToListAsync(),
+                             "StudentId",
+                             "StudentName"
+                         )
             };
 
             return View(model);

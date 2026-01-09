@@ -1,76 +1,351 @@
 ﻿@model ADB_Project.Models.Instructor
-
 @{
     ViewData["Title"] = "Edit Instructor";
 }
 
+<style>
+    .page-header {
+        background: linear-gradient(135deg, #233047 0%, #1d2533 100%);
+        color: white;
+        padding: 30px;
+        border-radius: 15px;
+        margin-bottom: 30px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+    }
+
+        .page-header h2 {
+            margin: 0;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+    .form-card {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        overflow: hidden;
+    }
+
+    .form-card-header {
+        background: #f8f9fa;
+        padding: 20px 30px;
+        border-bottom: 2px solid #e9ecef;
+    }
+
+        .form-card-header h4 {
+            margin: 0;
+            color: #2c3e50;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+    .form-card-body {
+        padding: 35px;
+    }
+
+    .form-section {
+        margin-bottom: 25px;
+    }
+
+        .form-section label {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 8px;
+            display: block;
+            font-size: 0.95rem;
+        }
+
+            .form-section label i {
+                margin-right: 8px;
+                color: #4A90E2;
+                width: 18px;
+                text-align: center;
+            }
+
+    .form-control, .form-select {
+        border: 2px solid #e9ecef;
+        border-radius: 10px;
+        padding: 12px 18px;
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+    }
+
+        .form-control:focus, .form-select:focus {
+            border-color: #4A90E2;
+            box-shadow: 0 0 0 0.2rem rgba(74, 144, 226, 0.15);
+        }
+
+        .form-control[readonly] {
+            background-color: #f8f9fa;
+            cursor: not-allowed;
+        }
+
+    .form-hint {
+        font-size: 0.85rem;
+        color: #6c757d;
+        margin-top: 5px;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+        .form-hint i {
+            font-size: 0.75rem;
+        }
+
+    .required-indicator {
+        color: #dc3545;
+        margin-left: 3px;
+    }
+
+    .form-check {
+        padding: 15px 20px;
+        background: #f8f9fa;
+        border-radius: 10px;
+        border: 2px solid #e9ecef;
+        transition: all 0.3s ease;
+    }
+
+        .form-check:hover {
+            background: #e9ecef;
+        }
+
+    .form-check-input {
+        width: 20px;
+        height: 20px;
+        margin-top: 0;
+        cursor: pointer;
+    }
+
+        .form-check-input:checked {
+            background-color: #27AE60;
+            border-color: #27AE60;
+        }
+
+    .form-check-label {
+        font-weight: 600;
+        color: #2c3e50;
+        cursor: pointer;
+        margin-left: 10px;
+    }
+
+    .section-divider {
+        border-top: 2px solid #e9ecef;
+        margin: 35px 0;
+        position: relative;
+    }
+
+        .section-divider::after {
+            content: attr(data-title);
+            position: absolute;
+            top: -12px;
+            left: 20px;
+            background: white;
+            padding: 0 15px;
+            color: #6c757d;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+    .form-actions {
+        display: flex;
+        gap: 15px;
+        margin-top: 35px;
+        padding-top: 25px;
+        border-top: 2px solid #e9ecef;
+    }
+
+    .btn-custom {
+        padding: 12px 30px;
+        border-radius: 25px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        border: none;
+        font-size: 1rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .btn-save {
+        background: linear-gradient(135deg, #F39C12, #D68910);
+        color: white;
+    }
+
+        .btn-save:hover {
+            background: linear-gradient(135deg, #D68910, #B9770E);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(243, 156, 18, 0.3);
+            color: white;
+        }
+
+    .btn-cancel {
+        background: #6c757d;
+        color: white;
+    }
+
+        .btn-cancel:hover {
+            background: #5a6268;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(108, 117, 125, 0.3);
+            color: white;
+        }
+
+    .alert-custom {
+        border-radius: 10px;
+        border: none;
+        padding: 15px 20px;
+        margin-bottom: 25px;
+    }
+
+    .alert-danger-custom {
+        background: #fee;
+        color: #c33;
+        border-left: 4px solid #dc3545;
+    }
+
+     
+</style>
+
 <div class="container mt-4">
-    <div class="card">
-        <div class="card-header">
-            <h4 class="mb-0"><i class="bi bi-pencil-square"></i> Edit Instructor</h4>
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="d-flex justify-content-between align-items-center flex-wrap">
+            <h2>
+                <i class="fas fa-user-edit"></i>
+                Edit Instructor Information
+            </h2>
+            <a asp-controller="Instructor" asp-action="Instructors" class="btn btn-light btn-sm">
+                <i class="fas fa-arrow-left me-2"></i>Back to Instructors
+            </a>
         </div>
-        <div class="card-body">
+    </div>
+
+    <!-- Form Card -->
+    <div class="form-card">
+        <div class="form-card-header">
+            <h4>
+                <i class="fas fa-info-circle"></i>
+                Instructor Details
+            </h4>
+        </div>
+
+        <div class="form-card-body">
             @if (Model == null)
             {
-                <div class="alert alert-danger">Instructor not found.</div>
-                <a asp-controller="Instructor" asp-action="Instructors" class="btn btn-secondary mt-2">
-                    <i class="bi bi-arrow-left"></i> Back to List
+                <div class="alert alert-custom alert-danger-custom">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <strong>Error:</strong> Instructor not found or invalid request.
+                </div>
+                <a asp-controller="Instructor" asp-action="Instructors" class="btn btn-custom btn-cancel">
+                    <i class="fas fa-arrow-left"></i>Return to Instructors List
                 </a>
             }
             else
             {
                 <form asp-controller="Instructor" asp-action="EditInstructor" method="post">
-                    <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
-
+                    <div asp-validation-summary="ModelOnly" class="alert alert-custom alert-danger-custom"></div>
                     <input type="hidden" asp-for="InstructorId" />
 
-                    <div class="row g-3">
+                    <!-- Personal Information Section -->
+                    <div class="row">
                         <div class="col-md-6">
-                            <label asp-for="InstructorName" class="form-label">Instructor Name</label>
-                            <input asp-for="InstructorName" class="form-control" />
-                            <span asp-validation-for="InstructorName" class="text-danger"></span>
+                            <div class="form-section">
+                                <label>
+                                    <i class="fas fa-user"></i>Instructor Name<span class="required-indicator">*</span>
+                                </label>
+                                <input asp-for="InstructorName" class="form-control" placeholder="Enter instructor's name" />
+                                <span asp-validation-for="InstructorName" class="text-danger"></span>
+                            </div>
                         </div>
 
                         <div class="col-md-6">
-                            <label asp-for="Email" class="form-label">Email Address</label>
-                            <input asp-for="Email" type="email" class="form-control" readonly />
-                            <small class="form-text text-muted">Email cannot be changed as it's used for login.</small>
-                        </div>
-
-                        <div class="col-md-6">
-                            <label asp-for="Phone" class="form-label">Phone Number</label>
-                            <input asp-for="Phone" class="form-control" />
-                            <span asp-validation-for="Phone" class="text-danger"></span>
-                        </div>
-
-                        <div class="col-md-6">
-                            <label asp-for="HireDate" class="form-label">Hire Date</label>
-                            <input asp-for="HireDate" type="date" class="form-control" />
-                            <span asp-validation-for="HireDate" class="text-danger"></span>
-                        </div>
-
-                        <div class="col-md-6">
-                            <label asp-for="BranchId" class="form-label">Branch</label>
-                            <select asp-for="BranchId" class="form-select" asp-items="@(new SelectList(ViewBag.Branches, "BranchId", "BranchName"))">
-                                <option value="">-- Select Branch --</option>
-                            </select>
-                            <span asp-validation-for="BranchId" class="text-danger"></span>
-                        </div>
-
-                        <div class="col-md-6 align-self-center">
-                            <div class="form-check mt-3">
-                                <input asp-for="IsActive" class="form-check-input" />
-                                <label asp-for="IsActive" class="form-check-label">Is Active</label>
+                            <div class="form-section">
+                                <label>
+                                    <i class="fas fa-envelope"></i>Email Address
+                                </label>
+                                <input asp-for="Email" type="email" class="form-control" readonly />
+                                <div class="form-hint">
+                                    <i class="fas fa-lock"></i>Email cannot be changed for security reasons
+                                </div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="mt-4">
-                        <button type="submit" class="btn btn-warning">
-                            <i class="bi bi-save"></i> Save Changes
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-section">
+                                <label>
+                                    <i class="fas fa-phone"></i>Phone Number
+                                </label>
+                                <input asp-for="Phone" class="form-control" placeholder="e.g., +20 123 456 7890" />
+                                <span asp-validation-for="Phone" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Employment Information Section -->
+                    <div class="section-divider" data-title="Employment Information"></div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-section">
+                                <label>
+                                    <i class="fas fa-calendar-plus"></i>Hire Date<span class="required-indicator">*</span>
+                                </label>
+                                <input asp-for="HireDate" type="date" class="form-control" />
+                                <span asp-validation-for="HireDate" class="text-danger"></span>
+                                <div class="form-hint">
+                                    <i class="fas fa-info-circle"></i>Date when instructor was hired
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-section">
+                                <label>
+                                    <i class="fas fa-building"></i>Branch<span class="required-indicator">*</span>
+                                </label>
+                                <select asp-for="BranchId" class="form-select" asp-items="@(new SelectList(ViewBag.Branches, "BranchId", "BranchName"))">
+                                    <option value="">-- Select Branch --</option>
+                                </select>
+                                <span asp-validation-for="BranchId" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Account Status Section -->
+                    <div class="section-divider" data-title="Account Status"></div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-section">
+                                <div class="form-check">
+                                    <input asp-for="IsActive" class="form-check-input" type="checkbox" />
+                                    <label asp-for="IsActive" class="form-check-label">
+                                        <i class="fas fa-toggle-on me-2"></i>Active Instructor Account
+                                    </label>
+                                </div>
+                                <div class="form-hint mt-2 ms-2">
+                                    <i class="fas fa-info-circle"></i>Inactive instructors cannot access the system
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-custom btn-save">
+                            <i class="fas fa-save"></i>Save Changes
                         </button>
-                        <a asp-controller="Instructor" asp-action="Instructors" class="btn btn-secondary">
-                            <i class="bi bi-x-circle"></i> Cancel
+                        <a asp-controller="Instructor" asp-action="Instructors" class="btn btn-custom btn-cancel">
+                            <i class="fas fa-times"></i>Cancel
                         </a>
                     </div>
                 </form>

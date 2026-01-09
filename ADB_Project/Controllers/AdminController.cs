@@ -636,6 +636,8 @@ namespace ADB_Project.Controllers
             return RedirectToAction(nameof(BranchDepartments));
         }
 
+
+        
         // POST: /Admin/RemoveDepartmentFromBranch (Delete assignment)
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -658,5 +660,154 @@ namespace ADB_Project.Controllers
         }
 
 
+
+
+        //*******************
+        // Controller Actions
+        // GET: /Admin/CourseDepartments - List all assignments
+        public async Task<IActionResult> CourseDepartments()
+        {
+            var assignments = await _context.DepartmentCourses
+                .Include(dc => dc.Dept)
+                .Include(dc => dc.Course)
+                .OrderByDescending(dc => dc.CreatedDate)
+                .ToListAsync();
+
+            return View(assignments);
+        }
+
+        // GET: /Admin/AssignCourseToDepartment
+        public async Task<IActionResult> AssignCourseToDepartment()
+        {
+            var model = new AssignCourseToDepartmentViewModel
+            {
+                Departments = await _context.Departments
+                    .Where(d => d.IsActive)
+                    .Select(d => new SelectListItem
+                    {
+                        Value = d.DeptId.ToString(),
+                        Text = d.DeptName
+                    }).ToListAsync(),
+
+                Courses = await _context.Courses
+                    .Select(c => new SelectListItem
+                    {
+                        Value = c.CourseId.ToString(),
+                        Text = $"{c.CourseCode} - {c.CourseName}"
+                    }).ToListAsync()
+            };
+
+            return View(model);
+        }
+
+        // POST: /Admin/AssignCourseToDepartment
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AssignCourseToDepartment(AssignCourseToDepartmentViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                // Reload lists if there's an error
+                model.Departments = await _context.Departments
+                    .Where(d => d.IsActive)
+                    .Select(d => new SelectListItem
+                    {
+                        Value = d.DeptId.ToString(),
+                        Text = d.DeptName
+                    }).ToListAsync();
+
+                model.Courses = await _context.Courses
+                    .Select(c => new SelectListItem
+                    {
+                        Value = c.CourseId.ToString(),
+                        Text = $"{c.CourseCode} - {c.CourseName}"
+                    }).ToListAsync();
+
+                return View(model);
+            }
+
+            // Check if assignment already exists
+            var exists = await _context.DepartmentCourses
+                .AnyAsync(dc => dc.DeptId == model.DeptId && dc.CourseId == model.CourseId);
+
+            if (exists)
+            {
+                TempData["Error"] = "This course is already assigned to this department!";
+
+                model.Departments = await _context.Departments
+                    .Where(d => d.IsActive)
+                    .Select(d => new SelectListItem
+                    {
+                        Value = d.DeptId.ToString(),
+                        Text = d.DeptName
+                    }).ToListAsync();
+
+                model.Courses = await _context.Courses
+                    .Select(c => new SelectListItem
+                    {
+                        Value = c.CourseId.ToString(),
+                        Text = $"{c.CourseCode} - {c.CourseName}"
+                    }).ToListAsync();
+
+                return View(model);
+            }
+
+            // Create new assignment
+            var assignment = new DepartmentCourse
+            {
+                DeptId = model.DeptId,
+                CourseId = model.CourseId,
+                IsRequired = model.IsRequired,
+                CreatedDate = DateTime.Now
+            };
+
+            _context.DepartmentCourses.Add(assignment);
+            await _context.SaveChangesAsync();
+
+            TempData["Success"] = "Course assigned to department successfully!";
+            return RedirectToAction("Dashboard");
+        }
+
+        // POST: /Admin/RemoveCourseFromDepartment
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> RemoveCourseFromDepartment(int deptId, int courseId)
+        {
+            var assignment = await _context.DepartmentCourses
+                .FirstOrDefaultAsync(dc => dc.DeptId == deptId && dc.CourseId == courseId);
+
+            if (assignment == null)
+            {
+                TempData["Error"] = "Assignment not found!";
+                return RedirectToAction(nameof(CourseDepartments));
+            }
+
+            _context.DepartmentCourses.Remove(assignment);
+            await _context.SaveChangesAsync();
+
+            TempData["Success"] = "Course removed from department successfully!";
+            return RedirectToAction(nameof(CourseDepartments));
+        }
+
+        // POST: /Admin/ToggleCourseRequirement
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ToggleCourseRequirement(int deptId, int courseId)
+        {
+            var assignment = await _context.DepartmentCourses
+                .FirstOrDefaultAsync(dc => dc.DeptId == deptId && dc.CourseId == courseId);
+
+            if (assignment == null)
+            {
+                TempData["Error"] = "Assignment not found!";
+                return RedirectToAction(nameof(CourseDepartments));
+            }
+
+            assignment.IsRequired = !assignment.IsRequired;
+            await _context.SaveChangesAsync();
+
+            TempData["Success"] = $"Course requirement status updated successfully!";
+            return RedirectToAction(nameof(CourseDepartments));
+        }
     }
 }

@@ -1,0 +1,299 @@
+﻿@model ADB_Project.Models.ViewModels.AssignCourseToDepartmentViewModel
+
+@{
+    ViewData["Title"] = "Assign Course to Department";
+}
+
+<style>
+    .page-header {
+        background: linear-gradient(135deg, #233047 0%, #1d2533 100%);
+        color: white;
+        padding: 40px;
+        border-radius: 15px;
+        margin-bottom: 30px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        text-align: center;
+    }
+
+        .page-header h1 {
+            margin: 0;
+            font-weight: 600;
+            font-size: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        .page-header p {
+            margin: 10px 0 0 0;
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+
+    .form-card {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        overflow: hidden;
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    .form-card-header {
+        background: #f8f9fa;
+        padding: 20px 30px;
+        border-bottom: 2px solid #e9ecef;
+    }
+
+        .form-card-header h4 {
+            margin: 0;
+            color: #2c3e50;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+    .form-card-body {
+        padding: 40px;
+    }
+
+    .info-alert {
+        background: #e3f2fd;
+        border: 1px solid #90caf9;
+        border-radius: 10px;
+        padding: 15px 20px;
+        margin-bottom: 30px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+        .info-alert i {
+            color: #1976d2;
+            font-size: 1.25rem;
+        }
+
+        .info-alert span {
+            color: #1565c0;
+            font-size: 0.95rem;
+        }
+
+    .form-section {
+        margin-bottom: 30px;
+    }
+
+        .form-section label {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 1rem;
+        }
+
+            .form-section label i {
+                color: #4A90E2;
+                font-size: 1.1rem;
+            }
+
+    .form-select {
+        border: 2px solid #e9ecef;
+        border-radius: 10px;
+        padding: 12px 18px;
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236c757d' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 1rem center;
+        cursor: pointer;
+    }
+
+        .form-select:focus {
+            border-color: #4A90E2;
+            box-shadow: 0 0 0 0.2rem rgba(74, 144, 226, 0.15);
+            outline: none;
+        }
+
+    .form-check-custom {
+        padding: 20px;
+        background: #f8f9fa;
+        border-radius: 10px;
+        border: 2px solid #e9ecef;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+
+        .form-check-custom:hover {
+            background: #e9ecef;
+        }
+
+    .form-check-input {
+        width: 20px;
+        height: 20px;
+        margin-top: 0;
+        cursor: pointer;
+    }
+
+        .form-check-input:checked {
+            background-color: #27AE60;
+            border-color: #27AE60;
+        }
+
+    .form-check-label {
+        font-weight: 600;
+        color: #2c3e50;
+        cursor: pointer;
+        margin-left: 10px;
+        font-size: 0.95rem;
+    }
+
+    .btn-group-custom {
+        display: flex;
+        gap: 15px;
+        margin-top: 40px;
+        padding-top: 30px;
+        border-top: 2px solid #e9ecef;
+    }
+
+    .btn-custom {
+        flex: 1;
+        padding: 14px 30px;
+        border-radius: 10px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        border: none;
+        font-size: 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        cursor: pointer;
+    }
+
+    .btn-assign {
+        background: linear-gradient(135deg, #233047 0%, #1d2533 100%);
+        color: white;
+    }
+
+        .btn-assign:hover {
+            background: linear-gradient(135deg, #1d2533 0%, #151d28 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(35, 48, 71, 0.3);
+            color: white;
+        }
+
+    .btn-cancel {
+        background: #6c757d;
+        color: white;
+    }
+
+        .btn-cancel:hover {
+            background: #5a6268;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(108, 117, 125, 0.3);
+            color: white;
+        }
+
+    .text-danger {
+        font-size: 0.875rem;
+        margin-top: 5px;
+        display: block;
+    }
+
+   
+</style>
+
+<div class="container mt-4">
+    <!-- Page Header -->
+    <div class="page-header">
+        <h1>
+            <i class="fas fa-link"></i>
+            Assign Course to Department
+        </h1>
+        <p>Link courses with their departments</p>
+    </div>
+
+    <!-- Form Card -->
+    <div class="form-card">
+        <div class="form-card-header">
+            <h4>
+                <i class="fas fa-clipboard-check"></i>
+                Assignment Details
+            </h4>
+        </div>
+
+        <div class="form-card-body">
+            <!-- Info Alert -->
+            <div class="info-alert">
+                <i class="fas fa-info-circle"></i>
+                <span>Select a department and a course to create a new assignment.</span>
+            </div>
+
+            <form asp-action="AssignCourseToDepartment" method="post">
+                @Html.AntiForgeryToken()
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger" style="border-radius: 10px;"></div>
+
+                <!-- Department Selection -->
+                <div class="form-section">
+                    <label>
+                        <i class="fas fa-building"></i>
+                        Department
+                    </label>
+                    <select asp-for="DeptId" asp-items="Model.Departments" class="form-select">
+                        <option value="">-- Select Department --</option>
+                    </select>
+                    <span asp-validation-for="DeptId" class="text-danger"></span>
+                </div>
+
+                <!-- Course Selection -->
+                <div class="form-section">
+                    <label>
+                        <i class="fas fa-book"></i>
+                        Course
+                    </label>
+                    <select asp-for="CourseId" asp-items="Model.Courses" class="form-select">
+                        <option value="">-- Select Course --</option>
+                    </select>
+                    <span asp-validation-for="CourseId" class="text-danger"></span>
+                </div>
+
+                <!-- Is Required Checkbox -->
+                <div class="form-section">
+                    <div class="form-check-custom">
+                        <input asp-for="IsRequired" class="form-check-input" type="checkbox" />
+                        <label asp-for="IsRequired" class="form-check-label">
+                            <i class="fas fa-star me-2"></i>
+                            Required Course
+                        </label>
+                    </div>
+                    <small class="text-muted ms-2 mt-2 d-block">
+                        <i class="fas fa-info-circle me-1"></i>
+                        Check if this course is mandatory for the department
+                    </small>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="btn-group-custom">
+                    <button type="submit" class="btn-custom btn-assign">
+                        <i class="fas fa-check-circle"></i>
+                        Assign Course
+                    </button>
+                    <a asp-action="CourseDepartments" class="btn-custom btn-cancel">
+                        <i class="fas fa-times-circle"></i>
+                        Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
