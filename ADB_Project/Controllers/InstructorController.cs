@@ -29,12 +29,14 @@ namespace ADB_Project.Controllers
         // ================= LIST =================
         public IActionResult Instructors()
         {
-            var instructors = _context.Instructors
-                .Include(i => i.Branch)
-                .Where(i => i.IsActive == true)
-                .ToList();
+            
+             var instructors = _context.Instructors
+            .Include(i => i.Branch)
+            .AsNoTracking()
+            .ToList();
 
-            return View(instructors);
+             return View(instructors);
+
         }
 
         // ================= CREATE =================
@@ -88,7 +90,7 @@ namespace ADB_Project.Controllers
                 // 2️⃣ Add Instructor to database
                 instructor.CreatedDate = DateTime.Now;
                 instructor.ModifiedDate = DateTime.Now;
-                instructor.IsActive = instructor.IsActive ?? true;
+                instructor.IsActive = instructor.IsActive;
 
                 _context.Instructors.Add(instructor);
                 await _context.SaveChangesAsync();
