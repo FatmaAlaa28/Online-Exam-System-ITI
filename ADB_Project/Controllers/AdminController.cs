@@ -578,6 +578,7 @@ namespace ADB_Project.Controllers
             var model = new AssignDepartmentToBranchViewModel
             {
                 Branches = await _context.Branches
+                    .Where(b => b.IsActive)
                     .Select(b => new SelectListItem
                     {
                         Value = b.BranchId.ToString(),
@@ -585,6 +586,7 @@ namespace ADB_Project.Controllers
                     }).ToListAsync(),
 
                 Departments = await _context.Departments
+                    .Where(d => d.IsActive)
                     .Select(d => new SelectListItem
                     {
                         Value = d.DeptId.ToString(),
@@ -603,8 +605,8 @@ namespace ADB_Project.Controllers
             if (!ModelState.IsValid)
             {
                 // إعادة تحميل القوائم لو في خطأ
-                model.Branches = await _context.Branches.Select(b => new SelectListItem { Value = b.BranchId.ToString(), Text = b.BranchName }).ToListAsync();
-                model.Departments = await _context.Departments.Select(d => new SelectListItem { Value = d.DeptId.ToString(), Text = d.DeptName }).ToListAsync();
+                model.Branches = await _context.Branches.Where(b => b.IsActive).Select(b => new SelectListItem { Value = b.BranchId.ToString(), Text = b.BranchName }).ToListAsync();
+                model.Departments = await _context.Departments.Where(d => d.IsActive).Select(d => new SelectListItem { Value = d.DeptId.ToString(), Text = d.DeptName }).ToListAsync();
                 return View(model);
             }
 

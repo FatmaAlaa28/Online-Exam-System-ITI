@@ -214,28 +214,49 @@
 
     <!-- Stats Row -->
     <div class="row stats-row">
-        <div class="col-md-4">
+        <div class="col-md-3">
             <div class="stat-card">
                 <i class="fas fa-user-tie"></i>
                 <div class="stat-number">@Model.Count()</div>
                 <div class="stat-label">Total Instructors</div>
             </div>
         </div>
-        <div class="col-md-4">
+
+        <div class="col-md-3">
             <div class="stat-card">
                 <i class="fas fa-user-check"></i>
                 <div class="stat-number">@Model.Count(i => i.IsActive == true)</div>
                 <div class="stat-label">Active Instructors</div>
             </div>
         </div>
-        <div class="col-md-4">
+
+        <div class="col-md-3">
+            <div class="stat-card">
+                <i class="fas fa-user-times"></i>
+                <div class="stat-number">@Model.Count(i => i.IsActive == false)</div>
+                <div class="stat-label">Inactive Instructors</div>
+            </div>
+        </div>
+
+
+
+        @* @Model
+        .Where(i => i.IsActive)
+        .Select(i => i.BranchId)
+        .Distinct()
+        .Count() *@
+
+        <div class="col-md-3">
             <div class="stat-card">
                 <i class="fas fa-code-branch"></i>
-                <div class="stat-number">@Model.Select(i => i.BranchId).Distinct().Count()</div>
+                <div class="stat-number">
+                    @Model.Select(i => i.BranchId).Distinct().Count()
+                </div>
                 <div class="stat-label">Branches</div>
             </div>
         </div>
     </div>
+
 
     <!-- Table Card -->
     <div class="table-card">

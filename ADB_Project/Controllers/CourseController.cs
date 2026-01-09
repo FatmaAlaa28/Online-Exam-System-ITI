@@ -140,6 +140,7 @@ namespace ADB_Project.Controllers
             var model = new AssignCourseViewModel
             {
                 Instructors = _context.Instructors
+                .Where(i => i.IsActive)
            .Select(i => new SelectListItem
            {
                Value = i.InstructorId.ToString(),   // اللي هيتبعت
@@ -165,6 +166,7 @@ namespace ADB_Project.Controllers
             {
                 // إعادة ملء القوائم في حالة الخطأ
                 model.Instructors = _context.Instructors
+                    .Where(i => i.IsActive)
                     .Select(i => new SelectListItem
                     {
                         Value = i.InstructorId.ToString(),
