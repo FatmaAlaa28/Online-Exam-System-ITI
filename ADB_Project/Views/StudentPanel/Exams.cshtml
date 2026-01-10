@@ -1,100 +1,509 @@
 ﻿@using ADB_Project.Models.ViewModels
-@* Views/StudentPanel/Exams.cshtml *@
 @model List<StudentExamListVM>
 
 @{
     ViewData["Title"] = "My Exams";
 }
 
-<div class="container mt-5">
-    <!-- Back to Dashboard Button -->
-    <div class="mb-4">
-        <a asp-action="Dashboard" asp-controller="StudentPanel" class="btn btn-outline-secondary">
-            <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
-        </a>
-    </div>
+<style>
+    .page-header {
+        background: linear-gradient(135deg, #233047 0%, #1d2533 100%);
+        color: white;
+        padding: 40px;
+        border-radius: 15px;
+        margin-bottom: 40px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+    }
 
-    <h1 class="display-6 fw-bold text-center mb-5 text-primary">
-        <i class="fas fa-file-alt me-3"></i>My Exams
-    </h1>
+        .page-header h2 {
+            margin: 0;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .page-header p {
+            margin: 10px 0 0 0;
+            opacity: 0.9;
+        }
+
+    .stats-row {
+        margin-bottom: 30px;
+    }
+
+    .stat-card {
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        text-align: center;
+        transition: transform 0.3s ease;
+    }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-card i {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+    .stat-number {
+        font-size: 1.8rem;
+        font-weight: bold;
+    }
+
+    .stat-label {
+        color: #6c757d;
+        font-size: 0.9rem;
+    }
+
+    .stat-primary {
+        color: #007bff;
+    }
+
+    .stat-warning {
+        color: #ffc107;
+    }
+
+    .stat-success {
+        color: #28a745;
+    }
+
+    .exams-section {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        overflow: hidden;
+        margin-bottom: 30px;
+    }
+
+    .section-header {
+        background: #f8f9fa;
+        padding: 20px 30px;
+        border-bottom: 2px solid #e9ecef;
+    }
+
+        .section-header h4 {
+            margin: 0;
+            color: #2c3e50;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+    .exam-card {
+        background: white;
+        border: 2px solid #e9ecef;
+        border-radius: 15px;
+        padding: 25px;
+        transition: all 0.3s ease;
+        height: 100%;
+        position: relative;
+        overflow: hidden;
+    }
+
+        .exam-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            transition: transform 0.3s ease;
+        }
+
+        .exam-card.not-started::before {
+            background: linear-gradient(90deg, #007bff 0%, #0056b3 100%);
+        }
+
+        .exam-card.in-progress::before {
+            background: linear-gradient(90deg, #ffc107 0%, #e0a800 100%);
+        }
+
+        .exam-card.submitted::before {
+            background: linear-gradient(90deg, #28a745 0%, #218838 100%);
+        }
+
+        .exam-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        }
+
+            .exam-card:hover::before {
+                transform: scaleX(1);
+            }
+
+    .exam-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: start;
+        margin-bottom: 20px;
+        padding-bottom: 15px;
+        border-bottom: 2px solid #e9ecef;
+    }
+
+    .exam-title {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: #2c3e50;
+        margin-bottom: 5px;
+    }
+
+    .exam-course {
+        color: #6c757d;
+        font-size: 0.95rem;
+    }
+
+    .status-badge {
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    .status-not-started {
+        background: #cfe2ff;
+        color: #084298;
+    }
+
+    .status-in-progress {
+        background: #fff3cd;
+        color: #856404;
+    }
+
+    .status-submitted {
+        background: #d1e7dd;
+        color: #0f5132;
+    }
+
+    .exam-meta {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+        margin-bottom: 20px;
+        padding: 15px;
+        background: #f8f9fa;
+        border-radius: 10px;
+    }
+
+    .meta-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: #6c757d;
+        font-size: 0.9rem;
+    }
+
+        .meta-item i {
+            color: #4A90E2;
+            font-size: 1rem;
+        }
+
+        .meta-item strong {
+            color: #2c3e50;
+        }
+
+    .exam-dates {
+        margin-bottom: 20px;
+    }
+
+    .date-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: #6c757d;
+        font-size: 0.9rem;
+        margin-bottom: 8px;
+    }
+
+        .date-item i {
+            color: #4A90E2;
+        }
+
+    .overdue-badge {
+        background: #dc3545;
+        color: white;
+        padding: 4px 10px;
+        border-radius: 15px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        margin-left: 8px;
+        animation: pulse 2s infinite;
+    }
+
+     
+
+    .exam-actions {
+        display: flex;
+        gap: 10px;
+    }
+
+    .btn-custom {
+        flex: 1;
+        padding: 12px 20px;
+        border-radius: 25px;
+        font-weight: 600;
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+        border: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+
+    .btn-start {
+        background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+        color: white;
+    }
+
+        .btn-start:hover {
+            background: linear-gradient(135deg, #0056b3 0%, #004085 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+            color: white;
+        }
+
+    .btn-continue {
+        background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%);
+        color: #212529;
+    }
+
+        .btn-continue:hover {
+            background: linear-gradient(135deg, #e0a800 0%, #d39e00 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 193, 7, 0.3);
+            color: #212529;
+        }
+
+    .btn-view-result {
+        background: linear-gradient(135deg, #28a745 0%, #218838 100%);
+        color: white;
+    }
+
+        .btn-view-result:hover {
+            background: linear-gradient(135deg, #218838 0%, #1e7e34 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+            color: white;
+        }
+
+    .empty-state {
+        text-align: center;
+        padding: 80px 30px;
+        color: #6c757d;
+    }
+
+        .empty-state i {
+            font-size: 5rem;
+            opacity: 0.3;
+            margin-bottom: 20px;
+        }
+
+        .empty-state h4 {
+            color: #6c757d;
+            margin-bottom: 10px;
+        }
+
+        .empty-state p {
+            font-size: 1rem;
+            margin: 0;
+        }
+
+    .btn-back {
+        background: white;
+        border: 2px solid #6c757d;
+        color: #6c757d;
+        padding: 10px 20px;
+        border-radius: 25px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        text-decoration: none;
+    }
+
+        .btn-back:hover {
+            background: #6c757d;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
+        }
+
+     
+</style>
+
+<div class="container-fluid mt-4">
+    <!-- Back Button -->
+    
+
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h2>
+                    <i class="fas fa-file-alt"></i>
+                    My Exams
+                </h2>
+                <p>View and take your assigned exams</p>
+            </div>
+            <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                
+                    <a asp-action="Dashboard" asp-controller="StudentPanel" class="btn-back">
+                        <i class="fas fa-arrow-left"></i>
+                        Back to Dashboard
+                    </a>
+               
+            </div>
+        </div>
+    </div>
 
     @if (Model.Any())
     {
-        <div class="row g-4">
-            @foreach (var exam in Model)
-            {
-                var statusBadge = exam.HasSubmitted ? "bg-success" : exam.HasStarted ? "bg-warning" : "bg-primary";
-                var statusText = exam.HasSubmitted ? "Submitted" : exam.HasStarted ? "In Progress" : "Not Started";
-                var canStart = !exam.HasSubmitted;
-
-                <div class="col-lg-6 col-xxl-4">
-                    <div class="card shadow-lg h-100 border-0 hover-shadow">
-                        <div class="card-header @statusBadge text-white">
-                            <h5 class="mb-0">@exam.ExamName</h5>
-                            <small>@exam.CourseName</small>
-                        </div>
-                        <div class="card-body">
-                            <div class="row text-muted small mb-3">
-                                <div class="col-6">
-                                    <i class="fas fa-clock"></i> @exam.DurationMinutes minutes
-                                </div>
-                                <div class="col-6">
-                                    <i class="fas fa-list-ol"></i> @exam.TotalQuestions questions
-                                </div>
-                            </div>
-
-                            @if (exam.ExamDate.HasValue)
-                            {
-                                <p class="mb-2"><i class="fas fa-calendar"></i> Exam Date: @exam.ExamDate.Value.ToString("ddd, dd MMM yyyy")</p>
-                            }
-                            @if (exam.DueDate.HasValue)
-                            {
-                                var isOverdue = exam.DueDate < DateTime.Now;
-                                <p class="mb-3">
-                                    <i class="fas fa-hourglass-end"></i> Due: @exam.DueDate.Value.ToString("dd MMM yyyy HH:mm")
-                                    @if (isOverdue)
-                                    {
-                                        <span class="badge bg-danger ms-2">Overdue!</span>
-                                    }
-                                </p>
-                            }
-
-                            <div class="d-flex justify-content-between align-items-center mt-4">
-                                <span class="badge @statusBadge fs-6 px-3 py-2">@statusText</span>
-
-                                @if (canStart)
-                                {
-                                    <form asp-action="StartExam" asp-route-examId="@exam.ExamId" method="post" class="d-inline">
-                                        <button type="submit" class="btn btn-primary btn-lg">
-                                            <i class="fas fa-play me-2"></i>Start Exam
-                                        </button>
-                                    </form>
-                                }
-                                else if (exam.HasGrade)
-                                {
-                                    <a asp-action="ExamResult" asp-route-examId="@exam.ExamId" class="btn btn-success btn-lg">
-                                        <i class="fas fa-eye me-2"></i>View Result
-                                    </a>
-                                }
-                                else
-                                {
-                                    <a asp-action="TakeExam" asp-route-examId="@exam.ExamId" class="btn btn-warning btn-lg">
-                                        <i class="fas fa-clock me-2"></i>Continue
-                                    </a>
-                                }
-                            </div>
-                        </div>
-                    </div>
+        <!-- Stats Row -->
+        <div class="row stats-row">
+            <div class="col-md-4">
+                <div class="stat-card">
+                    <i class="fas fa-clipboard-list stat-primary"></i>
+                    <div class="stat-number stat-primary">@Model.Count</div>
+                    <div class="stat-label">Total Exams</div>
                 </div>
-            }
+            </div>
+            <div class="col-md-4">
+                <div class="stat-card">
+                    <i class="fas fa-clock stat-warning"></i>
+                    <div class="stat-number stat-warning">@Model.Count(e => e.HasStarted && !e.HasSubmitted)</div>
+                    <div class="stat-label">In Progress</div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stat-card">
+                    <i class="fas fa-check-circle stat-success"></i>
+                    <div class="stat-number stat-success">@Model.Count(e => e.HasSubmitted)</div>
+                    <div class="stat-label">Submitted</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Exams Section -->
+        <div class="exams-section">
+            <div class="section-header">
+                <h4>
+                    <i class="fas fa-list"></i>
+                    Exam List
+                </h4>
+            </div>
+
+            <div class="p-4">
+                <div class="row g-4">
+                    @foreach (var exam in Model)
+                    {
+                        var statusClass = exam.HasSubmitted ? "submitted" : exam.HasStarted ? "in-progress" : "not-started";
+                        var statusBadgeClass = exam.HasSubmitted ? "status-submitted" : exam.HasStarted ? "status-in-progress" : "status-not-started";
+                        var statusText = exam.HasSubmitted ? "Submitted" : exam.HasStarted ? "In Progress" : "Not Started";
+                        var canStart = !exam.HasSubmitted;
+
+                        <div class="col-lg-6 col-xl-4">
+                            <div class="exam-card @statusClass">
+                                <div class="exam-header">
+                                    <div>
+                                        <div class="exam-title">@exam.ExamName</div>
+                                        <div class="exam-course">
+                                            <i class="fas fa-book-open me-1"></i>@exam.CourseName
+                                        </div>
+                                    </div>
+                                    <span class="status-badge @statusBadgeClass">@statusText</span>
+                                </div>
+
+                                <div class="exam-meta">
+                                    <div class="meta-item">
+                                        <i class="fas fa-clock"></i>
+                                        <span><strong>@exam.DurationMinutes</strong> minutes</span>
+                                    </div>
+                                    <div class="meta-item">
+                                        <i class="fas fa-question-circle"></i>
+                                        <span><strong>@exam.TotalQuestions</strong> questions</span>
+                                    </div>
+                                </div>
+
+                                <div class="exam-dates">
+                                    @if (exam.ExamDate.HasValue)
+                                    {
+                                        <div class="date-item">
+                                            <i class="fas fa-calendar-alt"></i>
+                                            <span>Exam Date: <strong>@exam.ExamDate.Value.ToString("ddd, dd MMM yyyy")</strong></span>
+                                        </div>
+                                    }
+                                    @if (exam.DueDate.HasValue)
+                                    {
+                                        var isOverdue = exam.DueDate < DateTime.Now && !exam.HasSubmitted;
+                                        <div class="date-item">
+                                            <i class="fas fa-hourglass-end"></i>
+                                            <span>Due: <strong>@exam.DueDate.Value.ToString("dd MMM yyyy HH:mm")</strong></span>
+                                            @if (isOverdue)
+                                            {
+                                                <span class="overdue-badge">
+                                                    <i class="fas fa-exclamation-triangle me-1"></i>Overdue
+                                                </span>
+                                            }
+                                        </div>
+                                    }
+                                </div>
+
+                                <div class="exam-actions">
+                                    @if (canStart && !exam.HasStarted)
+                                    {
+                                        <form asp-action="StartExam" asp-route-examId="@exam.ExamId" method="post" style="flex: 1;">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="btn-custom btn-start" style="width: 100%;">
+                                                <i class="fas fa-play"></i>
+                                                Start Exam
+                                            </button>
+                                        </form>
+                                    }
+                                    else if (exam.HasStarted && !exam.HasSubmitted)
+                                    {
+                                        <a asp-action="TakeExam" asp-route-examId="@exam.ExamId" class="btn-custom btn-continue">
+                                            <i class="fas fa-edit"></i>
+                                            Continue Exam
+                                        </a>
+                                    }
+                                    else if (exam.HasSubmitted && exam.HasGrade)
+                                    {
+                                        <a asp-action="ExamResult" asp-route-examId="@exam.ExamId" class="btn-custom btn-view-result">
+                                            <i class="fas fa-chart-line"></i>
+                                            View Result
+                                        </a>
+                                    }
+                                    else if (exam.HasSubmitted)
+                                    {
+                                        <button class="btn-custom btn-view-result" disabled>
+                                            <i class="fas fa-hourglass-half"></i>
+                                            Awaiting Grade
+                                        </button>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
         </div>
     }
     else
     {
-        <div class="text-center py-5">
-            <i class="fas fa-inbox fa-5x text-muted mb-4"></i>
-            <h3>No exams assigned yet</h3>
-            <p class="text-muted lead">Your instructor will assign exams soon. Check back later!</p>
+        <div class="exams-section">
+            <div class="empty-state">
+                <i class="fas fa-inbox"></i>
+                <h4>No Exams Assigned Yet</h4>
+                <p>Your instructor will assign exams soon. Check back later!</p>
+            </div>
         </div>
     }
 </div>

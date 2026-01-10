@@ -1,31 +1,429 @@
 ﻿@model IEnumerable<ADB_Project.Models.Course>
-
 @{
     ViewData["Title"] = "My Courses";
 }
 
-<h2>My Courses</h2>
+<style>
+    .page-header {
+        background: linear-gradient(135deg, #233047 0%, #1d2533 100%);
+        color: white;
+        padding: 40px;
+        border-radius: 15px;
+        margin-bottom: 40px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+    }
 
-<table class="table">
-    <thead>
-        <tr>
-            <th>Code</th>
-            <th>Name</th>
-            <th>Credit Hours</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var course in Model)
-        {
-            <tr>
-                <td>@course.CourseCode</td>
-                <td>@course.CourseName</td>
-                <td>@course.CreditHours</td>
-                <td>
-                    <a asp-action="Exams" asp-route-courseId="@course.CourseId" class="btn btn-primary">View Exams</a>
-                </td>
-            </tr>
+        .page-header h2 {
+            margin: 0;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 12px;
         }
-    </tbody>
-</table>
+
+        .page-header p {
+            margin: 10px 0 0 0;
+            opacity: 0.9;
+        }
+
+    .stats-row {
+        margin-bottom: 30px;
+    }
+
+    .stat-card {
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        text-align: center;
+        transition: transform 0.3s ease;
+    }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-card i {
+            font-size: 2rem;
+            color: #233047;
+            margin-bottom: 10px;
+        }
+
+    .stat-number {
+        font-size: 1.8rem;
+        font-weight: bold;
+        color: #233047;
+    }
+
+    .stat-label {
+        color: #6c757d;
+        font-size: 0.9rem;
+    }
+
+    .courses-card {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        overflow: hidden;
+    }
+
+    .card-header-custom {
+        background: #f8f9fa;
+        padding: 20px 30px;
+        border-bottom: 2px solid #e9ecef;
+    }
+
+        .card-header-custom h4 {
+            margin: 0;
+            color: #2c3e50;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+    .search-box {
+        position: relative;
+        margin-bottom: 0;
+    }
+
+        .search-box input {
+            border-radius: 25px;
+            padding: 10px 20px 10px 45px;
+            border: 2px solid #e9ecef;
+            width: 100%;
+        }
+
+            .search-box input:focus {
+                border-color: #4A90E2;
+                outline: none;
+                box-shadow: 0 0 0 0.2rem rgba(74, 144, 226, 0.15);
+            }
+
+        .search-box i {
+            position: absolute;
+            left: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6c757d;
+        }
+
+    .course-grid {
+        padding: 30px;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        gap: 25px;
+    }
+
+    .course-card {
+        background: white;
+        border: 2px solid #e9ecef;
+        border-radius: 15px;
+        padding: 25px;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+        .course-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(90deg, #233047 0%, #4A90E2 100%);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .course-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            border-color: #4A90E2;
+        }
+
+            .course-card:hover::before {
+                transform: scaleX(1);
+            }
+
+    .course-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 12px;
+        background: linear-gradient(135deg, #233047 0%, #1d2533 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 20px;
+        box-shadow: 0 4px 12px rgba(35, 48, 71, 0.3);
+    }
+
+        .course-icon i {
+            font-size: 1.8rem;
+            color: white;
+        }
+
+    .course-code {
+        display: inline-block;
+        background: #e9ecef;
+        color: #495057;
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        margin-bottom: 10px;
+    }
+
+    .course-name {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: #2c3e50;
+        margin-bottom: 15px;
+        line-height: 1.4;
+    }
+
+    .course-meta {
+        display: flex;
+        gap: 20px;
+        margin-bottom: 20px;
+        padding: 15px 0;
+        border-top: 1px solid #e9ecef;
+        border-bottom: 1px solid #e9ecef;
+    }
+
+    .meta-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: #6c757d;
+        font-size: 0.9rem;
+    }
+
+        .meta-item i {
+            color: #4A90E2;
+        }
+
+        .meta-item strong {
+            color: #2c3e50;
+        }
+
+    .course-actions {
+        display: flex;
+        gap: 10px;
+    }
+
+    .btn-custom {
+        flex: 1;
+        padding: 10px 20px;
+        border-radius: 25px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+        border: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+
+    .btn-view-exams {
+        background: linear-gradient(135deg, #233047 0%, #1d2533 100%);
+        color: white;
+    }
+
+        .btn-view-exams:hover {
+            background: linear-gradient(135deg, #1d2533 0%, #151d28 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(35, 48, 71, 0.3);
+            color: white;
+        }
+
+    .btn-details {
+        background: white;
+        border: 2px solid #233047;
+        color: #233047;
+    }
+
+        .btn-details:hover {
+            background: #233047;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(35, 48, 71, 0.3);
+        }
+
+    .empty-state {
+        text-align: center;
+        padding: 80px 30px;
+        color: #6c757d;
+    }
+
+        .empty-state i {
+            font-size: 5rem;
+            opacity: 0.3;
+            margin-bottom: 20px;
+        }
+
+        .empty-state h4 {
+            color: #6c757d;
+            margin-bottom: 10px;
+        }
+
+        .empty-state p {
+            font-size: 1rem;
+            margin: 0;
+        }
+
+    .btn-back {
+        background: white;
+        border: 2px solid #6c757d;
+        color: #6c757d;
+        padding: 10px 20px;
+        border-radius: 25px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        text-decoration: none;
+    }
+     
+</style>
+
+<div class="container-fluid mt-4">
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h2>
+                    <i class="fas fa-graduation-cap"></i>
+                    My Courses
+                </h2>
+                <p>View and manage your enrolled courses</p>
+            </div>
+            <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                <a asp-action="Dashboard" asp-controller="StudentPanel" class="btn-back">
+                    <i class="fas fa-arrow-left"></i>
+                    Back to Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats Row -->
+    <div class="row stats-row">
+        <div class="col-md-4">
+            <div class="stat-card">
+                <i class="fas fa-book"></i>
+                <div class="stat-number">@Model.Count()</div>
+                <div class="stat-label">Total Courses</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-card">
+                <i class="fas fa-clock"></i>
+                <div class="stat-number">@Model.Sum(c => c.CreditHours ?? 0)</div>
+                <div class="stat-label">Total Credit Hours</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-card">
+                <i class="fas fa-check-circle"></i>
+                <div class="stat-number">@Model.Count(c => c.IsActive == true)</div>
+                <div class="stat-label">Active Courses</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Courses Card -->
+    <div class="courses-card">
+        <div class="card-header-custom">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <h4>
+                        <i class="fas fa-list"></i>
+                        Course List
+                    </h4>
+                </div>
+                <div class="col-md-6">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="searchInput" class="form-control" placeholder="Search courses...">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        @if (Model.Any())
+        {
+            <div class="course-grid" id="courseGrid">
+                @foreach (var course in Model)
+                {
+                    <div class="course-card" data-course-name="@course.CourseName" data-course-code="@course.CourseCode">
+                        <div class="course-icon">
+                            <i class="fas fa-book-open"></i>
+                        </div>
+
+                        <span class="course-code">@course.CourseCode</span>
+                        <h3 class="course-name">@course.CourseName</h3>
+
+                        <div class="course-meta">
+                            <div class="meta-item">
+                                <i class="fas fa-clock"></i>
+                                <span><strong>@(course.CreditHours ?? 0)</strong> Credit Hours</span>
+                            </div>
+                              <div class="meta-item">
+                                    <i class="fas fa-star"></i>
+                                    <span><strong>@course.MaxDegree</strong> Max Degree</span>
+                                </div>
+                              
+                        </div>
+
+                        @if (!string.IsNullOrEmpty(course.Description))
+                        {
+                            <p class="text-muted mb-3" style="font-size: 0.9rem; line-height: 1.5;">
+                                @(course.Description.Length > 100 ? course.Description.Substring(0, 100) + "..." : course.Description)
+                            </p>
+                        }
+
+                        <div class="course-actions">
+                            <a asp-action="Exams" asp-route-courseId="@course.CourseId" class="btn-custom btn-view-exams">
+                                <i class="fas fa-file-alt"></i>
+                                View Exams
+                            </a>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="empty-state">
+                <i class="fas fa-book-open"></i>
+                <h4>No Courses Found</h4>
+                <p>You are not enrolled in any courses yet.</p>
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Search functionality
+        document.getElementById('searchInput')?.addEventListener('keyup', function() {
+            const searchValue = this.value.toLowerCase();
+            const courseCards = document.querySelectorAll('.course-card');
+
+            courseCards.forEach(card => {
+                const courseName = card.getAttribute('data-course-name').toLowerCase();
+                const courseCode = card.getAttribute('data-course-code').toLowerCase();
+
+                if (courseName.includes(searchValue) || courseCode.includes(searchValue)) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        });
+    </script>
+}
