@@ -1,83 +1,345 @@
 ﻿@using ADB_Project.Models.ViewModels
-@* Views/InstructorPanel/GenerateExam.cshtml *@
 @model GenerateExamViewModel
 
 @{
     ViewData["Title"] = "Generate New Exam";
 }
 
+<style>
+    .page-header {
+        background: linear-gradient(135deg, #233047 0%, #1d2533 100%);
+        color: white;
+        padding: 40px;
+        border-radius: 15px;
+        margin-bottom: 40px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+    }
+
+        .page-header h2 {
+            margin: 0;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .page-header p {
+            margin: 10px 0 0 0;
+            opacity: 0.9;
+        }
+
+    .form-card {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        overflow: hidden;
+    }
+
+    .form-card-header {
+        background: #f8f9fa;
+        padding: 20px 30px;
+        border-bottom: 2px solid #e9ecef;
+    }
+
+        .form-card-header h4 {
+            margin: 0;
+            color: #2c3e50;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+    .form-card-body {
+        padding: 35px;
+    }
+
+    .form-section {
+        margin-bottom: 25px;
+    }
+
+        .form-section label {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 8px;
+            display: block;
+            font-size: 0.95rem;
+        }
+
+            .form-section label i {
+                margin-right: 8px;
+                color: #4A90E2;
+                width: 18px;
+                text-align: center;
+            }
+
+    .form-control, .form-select {
+        border: 2px solid #e9ecef;
+        border-radius: 10px;
+        padding: 12px 18px;
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+    }
+
+        .form-control:focus, .form-select:focus {
+            border-color: #4A90E2;
+            box-shadow: 0 0 0 0.2rem rgba(74, 144, 226, 0.15);
+        }
+
+    .form-hint {
+        font-size: 0.85rem;
+        color: #6c757d;
+        margin-top: 5px;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+        .form-hint i {
+            font-size: 0.75rem;
+        }
+
+    .required-indicator {
+        color: #dc3545;
+        margin-left: 3px;
+    }
+
+    .section-divider {
+        border-top: 2px solid #e9ecef;
+        margin: 35px 0;
+        position: relative;
+    }
+
+        .section-divider::after {
+            content: attr(data-title);
+            position: absolute;
+            top: -12px;
+            left: 20px;
+            background: white;
+            padding: 0 15px;
+            color: #6c757d;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+    .form-actions {
+        display: flex;
+        gap: 15px;
+        margin-top: 35px;
+        padding-top: 25px;
+        border-top: 2px solid #e9ecef;
+    }
+
+    .btn-custom {
+        padding: 12px 30px;
+        border-radius: 25px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        border: none;
+        font-size: 1rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .btn-generate {
+        background: linear-gradient(135deg, #27AE60 0%, #229954 100%);
+        color: white;
+    }
+
+        .btn-generate:hover {
+            background: linear-gradient(135deg, #229954 0%, #1E8449 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(39, 174, 96, 0.3);
+            color: white;
+        }
+
+    .btn-cancel {
+        background: #6c757d;
+        color: white;
+    }
+
+        .btn-cancel:hover {
+            background: #5a6268;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(108, 117, 125, 0.3);
+            color: white;
+        }
+
+    .alert-custom {
+        border-radius: 10px;
+        border: none;
+        padding: 15px 20px;
+        margin-bottom: 25px;
+        border-left: 4px solid;
+    }
+
+    .alert-danger-custom {
+        background: #fee;
+        color: #c33;
+        border-left-color: #dc3545;
+    }
+
+    .alert-success-custom {
+        background: #d1e7dd;
+        color: #0f5132;
+        border-left-color: #28a745;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    
+</style>
+
 <div class="container mt-4">
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h2>
+                    <i class="fas fa-magic"></i>
+                    Generate New Exam
+                </h2>
+                <p>Create an automated exam from your question bank</p>
+            </div>
+            <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                <span class="badge bg-light text-dark px-3 py-2">
+                    <i class="fas fa-calendar-alt me-2"></i>@DateTime.Now.ToString("MMMM dd, yyyy")
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Form Card -->
     <div class="row justify-content-center">
         <div class="col-md-10 col-lg-8">
-            <div class="card shadow">
-                <div class="card-header bg-success text-white">
-                    <h4 class="mb-0">
-                        <i class="fas fa-file-alt me-2"></i> Generate New Exam
+            <div class="form-card">
+                <div class="form-card-header">
+                    <h4>
+                        <i class="fas fa-info-circle"></i>
+                        Exam Configuration
                     </h4>
                 </div>
-                <div class="card-body">
+
+                <div class="form-card-body">
                     <form asp-action="GenerateExam" method="post">
-                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                        <div asp-validation-summary="ModelOnly" class="alert-custom alert-danger-custom"></div>
+
+                        <!-- Basic Information Section -->
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-section">
+                                    <label>
+                                        <i class="fas fa-book"></i>Course<span class="required-indicator">*</span>
+                                    </label>
+                                    <select asp-for="CourseId" asp-items="Model.Courses" class="form-select">
+                                        <option value="">-- Select Course --</option>
+                                    </select>
+                                    <span asp-validation-for="CourseId" class="text-danger"></span>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-section">
+                                    <label>
+                                        <i class="fas fa-file-signature"></i>Exam Name<span class="required-indicator">*</span>
+                                    </label>
+                                    <input asp-for="ExamName" class="form-control" placeholder="e.g., Midterm Exam 2026" />
+                                    <span asp-validation-for="ExamName" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Question Configuration Section -->
+                        <div class="section-divider" data-title="Question Configuration"></div>
 
                         <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label asp-for="CourseId" class="form-label fw-bold">Course</label>
-                                <select asp-for="CourseId" asp-items="Model.Courses" class="form-select">
-                                    <option value="">-- Select Course --</option>
-                                </select>
-                                <span asp-validation-for="CourseId" class="text-danger"></span>
+                            <div class="col-md-6">
+                                <div class="form-section">
+                                    <label>
+                                        <i class="fas fa-list-ol"></i>Number of MCQ Questions<span class="required-indicator">*</span>
+                                    </label>
+                                    <input asp-for="NumMCQ" class="form-control" type="number" min="0" value="10" />
+                                    <div class="form-hint">
+                                        <i class="fas fa-info-circle"></i>Multiple choice questions
+                                    </div>
+                                    <span asp-validation-for="NumMCQ" class="text-danger"></span>
+                                </div>
                             </div>
 
-                            <div class="col-md-6 mb-3">
-                                <label asp-for="ExamName" class="form-label fw-bold">Exam Name</label>
-                                <input asp-for="ExamName" class="form-control" placeholder="e.g., Midterm Exam 2026" />
-                                <span asp-validation-for="ExamName" class="text-danger"></span>
+                            <div class="col-md-6">
+                                <div class="form-section">
+                                    <label>
+                                        <i class="fas fa-check-square"></i>Number of True/False Questions<span class="required-indicator">*</span>
+                                    </label>
+                                    <input asp-for="NumTF" class="form-control" type="number" min="0" value="5" />
+                                    <div class="form-hint">
+                                        <i class="fas fa-info-circle"></i>True or false questions
+                                    </div>
+                                    <span asp-validation-for="NumTF" class="text-danger"></span>
+                                </div>
                             </div>
                         </div>
+
+                        <!-- Exam Settings Section -->
+                        <div class="section-divider" data-title="Exam Settings"></div>
 
                         <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label asp-for="NumMCQ" class="form-label fw-bold">Number of MCQ Questions</label>
-                                <input asp-for="NumMCQ" class="form-control" type="number" min="0" value="10" />
-                                <span asp-validation-for="NumMCQ" class="text-danger"></span>
+                            <div class="col-md-6">
+                                <div class="form-section">
+                                    <label>
+                                        <i class="fas fa-clock"></i>Duration (minutes)<span class="required-indicator">*</span>
+                                    </label>
+                                    <input asp-for="DurationMinutes" class="form-control" type="number" min="10" max="300" value="90" />
+                                    <div class="form-hint">
+                                        <i class="fas fa-info-circle"></i>Time limit for completing the exam
+                                    </div>
+                                    <span asp-validation-for="DurationMinutes" class="text-danger"></span>
+                                </div>
                             </div>
 
-                            <div class="col-md-6 mb-3">
-                                <label asp-for="NumTF" class="form-label fw-bold">Number of True/False Questions</label>
-                                <input asp-for="NumTF" class="form-control" type="number" min="0" value="5" />
-                                <span asp-validation-for="NumTF" class="text-danger"></span>
+                            <div class="col-md-6">
+                                <div class="form-section">
+                                    <label>
+                                        <i class="fas fa-percentage"></i>Passing Percentage (%)<span class="required-indicator">*</span>
+                                    </label>
+                                    <input asp-for="PassingPercentage" class="form-control" type="number" min="0" max="100" step="0.01" value="60" />
+                                    <div class="form-hint">
+                                        <i class="fas fa-info-circle"></i>Minimum score required to pass
+                                    </div>
+                                    <span asp-validation-for="PassingPercentage" class="text-danger"></span>
+                                </div>
                             </div>
                         </div>
+
+                        <!-- Schedule Section -->
+                        <div class="section-divider" data-title="Schedule (Optional)"></div>
 
                         <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label asp-for="DurationMinutes" class="form-label fw-bold">Duration (minutes)</label>
-                                <input asp-for="DurationMinutes" class="form-control" type="number" min="10" max="300" value="90" />
-                                <span asp-validation-for="DurationMinutes" class="text-danger"></span>
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label asp-for="PassingPercentage" class="form-label fw-bold">Passing Percentage (%)</label>
-                                <input asp-for="PassingPercentage" class="form-control" type="number" min="0" max="100" step="0.01" value="60" />
-                                <span asp-validation-for="PassingPercentage" class="text-danger"></span>
+                            <div class="col-12">
+                                <div class="form-section">
+                                    <label>
+                                        <i class="fas fa-calendar-alt"></i>Exam Date
+                                    </label>
+                                    <input asp-for="ExamDate" class="form-control" type="datetime-local" />
+                                    <div class="form-hint">
+                                        <i class="fas fa-info-circle"></i>Leave empty to use current date/time
+                                    </div>
+                                    <span asp-validation-for="ExamDate" class="text-danger"></span>
+                                </div>
                             </div>
                         </div>
 
-                        <div class="mb-3">
-                            <label asp-for="ExamDate" class="form-label fw-bold">Exam Date (optional)</label>
-                            <input asp-for="ExamDate" class="form-control" type="datetime-local" />
-                            <div class="form-text">Leave empty to use current date/time.</div>
-                            <span asp-validation-for="ExamDate" class="text-danger"></span>
-                        </div>
-
-                        <hr class="my-4" />
-
-                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                            <a asp-action="Dashboard" class="btn btn-secondary me-md-2">
-                                <i class="fas fa-arrow-left"></i> Cancel
+                        <!-- Action Buttons -->
+                        <div class="form-actions">
+                            <a asp-action="Dashboard" class="btn-custom btn-cancel">
+                                <i class="fas fa-times"></i>Cancel
                             </a>
-                            <button type="submit" class="btn btn-success btn-lg">
-                                <i class="fas fa-magic me-2"></i> Generate Exam
+                            <button type="submit" class="btn-custom btn-generate">
+                                <i class="fas fa-magic"></i>Generate Exam
                             </button>
                         </div>
                     </form>
@@ -85,10 +347,10 @@
 
                 @if (TempData["Success"] != null)
                 {
-                    <div class="card-footer bg-light">
-                        <div class="alert alert-success mb-0">
-                            <i class="fas fa-check-circle me-2"></i>
-                            @TempData["Success"]
+                    <div style="padding: 0 35px 35px 35px;">
+                        <div class="alert-custom alert-success-custom">
+                            <i class="fas fa-check-circle" style="font-size: 1.2rem;"></i>
+                            <span>@TempData["Success"]</span>
                         </div>
                     </div>
                 }
@@ -96,3 +358,9 @@
         </div>
     </div>
 </div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

@@ -5,81 +5,365 @@
 }
 
 <style>
-    /* Add some basic styling to make it look nice */
-    .assignment-form {
-        max-width: 800px;
-        margin: 0 auto;
+    .page-header {
+        background: linear-gradient(135deg, #233047 0%, #1d2533 47%);
+        color: white;
+        padding: 30px;
+        border-radius: 15px;
+        margin-bottom: 30px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+    }
+
+        .page-header h2 {
+            margin: 0;
+            font-weight: 600;
+        }
+
+        .page-header p {
+            margin: 8px 0 0 0;
+            opacity: 0.9;
+            font-size: 0.9rem;
+        }
+
+    .form-card {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        overflow: hidden;
+    }
+
+    .form-card-header {
+        background: #f8f9fa;
+        padding: 15px 25px;
+        border-bottom: 2px solid #e9ecef;
+    }
+
+        .form-card-header h4 {
+            margin: 0;
+            color: #2c3e50;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 1.1rem;
+        }
+
+    .form-card-body {
+        padding: 25px;
     }
 
     .method-group {
-        margin-bottom: 20px;
+        margin-bottom: 25px;
+        padding: 20px;
+        background: #f8f9fa;
+        border-radius: 10px;
+        border: 2px solid #e9ecef;
+    }
+
+        .method-group h6 {
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 1rem;
+        }
+
+            .method-group h6 i {
+                color: #4A90E2;
+            }
+
+    .form-check {
+        padding: 12px 15px;
+        margin-bottom: 10px;
+        background: white;
+        border-radius: 8px;
+        border: 2px solid #e9ecef;
+        transition: all 0.3s ease;
+    }
+
+        .form-check:hover {
+            background: #f8f9fa;
+            border-color: #4A90E2;
+        }
+
+    .form-check-input {
+        width: 18px;
+        height: 18px;
+        margin-top: 0;
+        cursor: pointer;
+    }
+
+        .form-check-input:checked {
+            background-color: #4A90E2;
+            border-color: #4A90E2;
+        }
+
+    .form-check-label {
+        font-weight: 500;
+        color: #2c3e50;
+        cursor: pointer;
+        margin-left: 8px;
     }
 
     .selection-group {
-        margin-bottom: 20px;
+        margin-bottom: 25px;
+    }
+
+        .selection-group label {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            display: block;
+            font-size: 0.95rem;
+        }
+
+            .selection-group label i {
+                margin-right: 6px;
+                color: #4A90E2;
+            }
+
+    .form-control, .form-select {
+        border: 2px solid #e9ecef;
+        border-radius: 8px;
+        padding: 10px 15px;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+    }
+
+        .form-control:focus, .form-select:focus {
+            border-color: #4A90E2;
+            box-shadow: 0 0 0 0.2rem rgba(74, 144, 226, 0.15);
+        }
+
+    .search-input {
+        margin-bottom: 12px;
+        position: relative;
+    }
+
+        .search-input input {
+            padding-left: 40px;
+        }
+
+    .search-icon {
+        position: absolute;
+        left: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #6c757d;
+        pointer-events: none;
     }
 
     .student-list {
-        max-height: 300px;
+        max-height: 350px;
         overflow-y: auto;
-        border: 1px solid #dee2e6;
+        border: 2px solid #e9ecef;
         padding: 15px;
-        border-radius: 5px;
+        border-radius: 10px;
+        background: #f8f9fa;
     }
 
-    .search-input {
-        margin-bottom: 10px;
+        .student-list::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .student-list::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        .student-list::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 10px;
+        }
+
+            .student-list::-webkit-scrollbar-thumb:hover {
+                background: #555;
+            }
+
+        .student-list .form-check {
+            background: white;
+            margin-bottom: 8px;
+            padding: 10px 12px;
+        }
+
+    .form-group {
+        margin-bottom: 25px;
     }
+
+        .form-group label {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 8px;
+            display: block;
+            font-size: 0.95rem;
+        }
+
+            .form-group label i {
+                margin-right: 6px;
+                color: #4A90E2;
+            }
+
+    .form-actions {
+        display: flex;
+        gap: 12px;
+        justify-content: flex-end;
+        margin-top: 25px;
+        padding-top: 20px;
+        border-top: 2px solid #e9ecef;
+    }
+
+    .btn-custom {
+        padding: 10px 25px;
+        border-radius: 20px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        border: none;
+        font-size: 0.95rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .btn-assign {
+        background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%);
+        color: #212529;
+    }
+
+        .btn-assign:hover {
+            background: linear-gradient(135deg, #e0a800 0%, #d39e00 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 193, 7, 0.3);
+            color: #212529;
+        }
+
+    .btn-cancel {
+        background: #6c757d;
+        color: white;
+    }
+
+        .btn-cancel:hover {
+            background: #5a6268;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(108, 117, 125, 0.3);
+            color: white;
+        }
+
+    .section-divider {
+        border-top: 2px solid #e9ecef;
+        margin: 25px 0;
+        position: relative;
+    }
+
+        .section-divider::after {
+            content: attr(data-title);
+            position: absolute;
+            top: -10px;
+            left: 15px;
+            background: white;
+            padding: 0 12px;
+            color: #6c757d;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+   
 </style>
 
 <div class="container mt-4">
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h2>
+                    <i class="fas fa-user-plus"></i>
+                    Assign Exam to Students
+                </h2>
+                <p>Select students and assign exam with optional due date</p>
+            </div>
+            <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                <span class="badge bg-light text-dark px-3 py-2">
+                    <i class="fas fa-calendar-alt me-2"></i>@DateTime.Now.ToString("MMMM dd, yyyy")
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Form Card -->
     <div class="row justify-content-center">
         <div class="col-md-10">
-            <div class="card shadow assignment-form">
-                <div class="card-header bg-warning text-dark">
-                    <h4>Assign Exam to Students</h4>
+            <div class="form-card">
+                <div class="form-card-header">
+                    <h4>
+                        <i class="fas fa-cog"></i>
+                        Assignment Configuration
+                    </h4>
                 </div>
-                <div class="card-body">
+
+                <div class="form-card-body">
                     <form asp-action="AssignExam" method="post">
                         <input asp-for="ExamId" type="hidden" />
 
                         <!-- Assignment Method -->
                         <div class="method-group">
-                            <h6>Assignment Method</h6>
+                            <h6>
+                                <i class="fas fa-tasks"></i>
+                                Assignment Method
+                            </h6>
                             <div class="form-check">
                                 <input class="form-check-input" type="radio" asp-for="AssignmentMethod" id="byBranch" value="Branch" />
-                                <label class="form-check-label" for="byBranch">By Branch</label>
+                                <label class="form-check-label" for="byBranch">
+                                    <i class="fas fa-code-branch me-2"></i>By Branch
+                                </label>
                             </div>
                             <div class="form-check">
                                 <input class="form-check-input" type="radio" asp-for="AssignmentMethod" id="byDept" value="Dept" />
-                                <label class="form-check-label" for="byDept">By Department</label>
+                                <label class="form-check-label" for="byDept">
+                                    <i class="fas fa-building me-2"></i>By Department
+                                </label>
                             </div>
                             <div class="form-check">
                                 <input class="form-check-input" type="radio" asp-for="AssignmentMethod" id="manual" value="Manual" checked />
-                                <label class="form-check-label" for="manual">Manual Selection</label>
+                                <label class="form-check-label" for="manual">
+                                    <i class="fas fa-user-check me-2"></i>Manual Selection
+                                </label>
                             </div>
                         </div>
 
+                        <div class="section-divider" data-title="Selection"></div>
+
                         <!-- Branch Selection (hidden initially) -->
                         <div class="selection-group" id="branchSection" style="display: none;">
-                            <label>Select Branches</label>
+                            <label>
+                                <i class="fas fa-code-branch"></i>Select Branches
+                            </label>
                             <select asp-for="SelectedBranchIds" asp-items="@Model.Branches" class="form-control" multiple>
                             </select>
                         </div>
 
                         <!-- Department Selection (hidden initially) -->
                         <div class="selection-group" id="deptSection" style="display: none;">
-                            <label>Select Departments</label>
+                            <label>
+                                <i class="fas fa-building"></i>Select Departments
+                            </label>
                             <select asp-for="SelectedDeptIds" asp-items="@Model.Departments" class="form-control" multiple>
                             </select>
                         </div>
 
                         <!-- Student Selection with Search -->
                         <div class="selection-group" id="studentSection">
-                            <h6>Select Students</h6>
-                            <input type="text" id="studentSearch" class="form-control search-input" placeholder="Search students by name..." />
+                            <label>
+                                <i class="fas fa-users"></i>Select Students
+                            </label>
+                            <div class="search-input" style="position: relative;">
+                                <i class="fas fa-search search-icon"></i>
+                                <input type="text" id="studentSearch" class="form-control" placeholder="Search students by name..." />
+                            </div>
                             <div class="student-list">
-                                @if (Model.Students != null)
+                                @if (Model.Students != null && Model.Students.Any())
                                 {
                                     foreach (var student in Model.Students)
                                     {
@@ -93,20 +377,34 @@
                                 }
                                 else
                                 {
-                                    <p>No students available.</p>
+                                    <p class="text-muted text-center py-3 mb-0">
+                                        <i class="fas fa-info-circle me-2"></i>No students available.
+                                    </p>
                                 }
                             </div>
                         </div>
 
+                        <div class="section-divider" data-title="Schedule"></div>
+
                         <!-- Due Date -->
                         <div class="form-group">
-                            <label asp-for="DueDate" class="form-label fw-bold">Due Date (Optional)</label>
+                            <label asp-for="DueDate">
+                                <i class="fas fa-calendar-alt"></i>Due Date (Optional)
+                            </label>
                             <input asp-for="DueDate" type="datetime-local" class="form-control" />
+                            <small class="text-muted">
+                                <i class="fas fa-info-circle me-1"></i>Leave empty for no due date
+                            </small>
                         </div>
 
-                        <div class="text-end mt-4">
-                            <a asp-action="ExamDetails" asp-route-examId="@Model.ExamId" class="btn btn-secondary me-2">Cancel</a>
-                            <button type="submit" class="btn btn-warning btn-lg">Assign Exam</button>
+                        <!-- Action Buttons -->
+                        <div class="form-actions">
+                            <a asp-action="ExamDetails" asp-route-examId="@Model.ExamId" class="btn-custom btn-cancel">
+                                <i class="fas fa-times"></i>Cancel
+                            </a>
+                            <button type="submit" class="btn-custom btn-assign">
+                                <i class="fas fa-check"></i>Assign Exam
+                            </button>
                         </div>
                     </form>
                 </div>

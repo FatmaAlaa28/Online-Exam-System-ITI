@@ -1,134 +1,550 @@
 ﻿@using ADB_Project.Models.ViewModels
-@* Views/InstructorPanel/ExamResults.cshtml *@
 @model ExamResultsVM
 
 @{
     ViewData["Title"] = $"Results - {Model.Exam.ExamName}";
 }
 
-<div class="container mt-4">
-    <h2 class="mb-4">Results: <strong>@Model.Exam.ExamName</strong></h2>
-    <p class="text-muted">Course: @Model.Exam.Course.CourseName</p>
+<style>
+    .page-header {
+        background: linear-gradient(135deg, #233047 0%, #1d2533 100%);
+        color: white;
+        padding: 35px;
+        border-radius: 15px;
+        margin-bottom: 35px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+    }
 
-    <!-- Stats Cards -->
-    <div class="row g-3 mb-5">
-        <div class="col-md-3">
-            <div class="card text-center bg-primary text-white">
-                <div class="card-body">
-                    <h5>Total Assigned</h5>
-                    <h3>@Model.TotalAssigned</h3>
+        .page-header h2 {
+            margin: 0;
+            font-weight: 700;
+            font-size: 1.8rem;
+        }
+
+        .page-header .exam-meta {
+            margin-top: 10px;
+            opacity: 0.9;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+    .stat-card {
+        background: white;
+        border-radius: 15px;
+        padding: 25px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s ease;
+        height: 100%;
+        position: relative;
+        overflow: hidden;
+    }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 100px;
+            height: 100px;
+            background: rgba(0, 0, 0, 0.03);
+            border-radius: 50%;
+            transform: translate(30%, -30%);
+        }
+
+    .stat-card-icon {
+        font-size: 2.5rem;
+        margin-bottom: 15px;
+        opacity: 0.9;
+    }
+
+    .stat-card-title {
+        font-size: 0.9rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 10px;
+        opacity: 0.8;
+    }
+
+    .stat-card-value {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin: 0;
+    }
+
+        .stat-card-value .unit {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-left: 3px;
+        }
+
+    /* Color variants */
+    .stat-primary {
+        border-left: 4px solid #4A90E2;
+    }
+
+        .stat-primary .stat-card-icon {
+            color: #4A90E2;
+        }
+
+        .stat-primary .stat-card-value {
+            color: #4A90E2;
+        }
+
+    .stat-success {
+        border-left: 4px solid #27AE60;
+    }
+
+        .stat-success .stat-card-icon {
+            color: #27AE60;
+        }
+
+        .stat-success .stat-card-value {
+            color: #27AE60;
+        }
+
+    .stat-warning {
+        border-left: 4px solid #F39C12;
+    }
+
+        .stat-warning .stat-card-icon {
+            color: #F39C12;
+        }
+
+        .stat-warning .stat-card-value {
+            color: #F39C12;
+        }
+
+    .stat-info {
+        border-left: 4px solid #3498DB;
+    }
+
+        .stat-info .stat-card-icon {
+            color: #3498DB;
+        }
+
+        .stat-info .stat-card-value {
+            color: #3498DB;
+        }
+
+    .content-card {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        margin-bottom: 30px;
+        overflow: hidden;
+    }
+
+    .content-card-header {
+        background: linear-gradient(135deg, #233047 0%, #1d2533 100%);
+        color: white;
+        padding: 20px 25px;
+        border: none;
+    }
+
+        .content-card-header h4 {
+            margin: 0;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+    .content-card-body {
+        padding: 25px;
+    }
+
+    .table-modern {
+        margin: 0;
+    }
+
+        .table-modern thead {
+            background: #f8f9fa;
+            border-bottom: 2px solid #dee2e6;
+        }
+
+            .table-modern thead th {
+                border: none;
+                padding: 15px;
+                font-weight: 600;
+                color: #2c3e50;
+                text-transform: uppercase;
+                font-size: 0.85rem;
+                letter-spacing: 0.5px;
+            }
+
+        .table-modern tbody td {
+            padding: 15px;
+            vertical-align: middle;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .table-modern tbody tr {
+            transition: all 0.2s ease;
+        }
+
+            .table-modern tbody tr:hover {
+                background: #f8f9fa;
+                transform: scale(1.005);
+            }
+
+    .badge-custom {
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 0.85rem;
+    }
+
+    .student-name {
+        font-weight: 600;
+        color: #2c3e50;
+    }
+
+    .score-display {
+        font-weight: 700;
+        color: #495057;
+        font-size: 1.05rem;
+    }
+
+    .alert-custom {
+        border-radius: 12px;
+        border: none;
+        padding: 20px 25px;
+        margin-bottom: 30px;
+        border-left: 4px solid;
+    }
+
+    .alert-warning-custom {
+        background: #FFF3CD;
+        border-left-color: #F39C12;
+        color: #856404;
+    }
+
+        .alert-warning-custom h5 {
+            color: #856404;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+    .not-taken-student {
+        padding: 8px 12px;
+        background: white;
+        border-radius: 8px;
+        margin-bottom: 8px;
+        font-weight: 500;
+        color: #495057;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+
+    .question-row-excellent {
+        background: rgba(39, 174, 96, 0.05);
+        border-left: 3px solid #27AE60;
+    }
+
+    .question-row-good {
+        background: rgba(52, 152, 219, 0.05);
+        border-left: 3px solid #3498DB;
+    }
+
+    .question-row-warning {
+        background: rgba(243, 156, 18, 0.05);
+        border-left: 3px solid #F39C12;
+    }
+
+    .question-row-danger {
+        background: rgba(231, 76, 60, 0.05);
+        border-left: 3px solid #E74C3C;
+    }
+
+    .question-text {
+        color: #2c3e50;
+        font-weight: 500;
+        line-height: 1.5;
+    }
+
+    .performance-badge {
+        display: inline-block;
+        padding: 4px 10px;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 0.8rem;
+    }
+
+    .performance-excellent {
+        background: #D4EDDA;
+        color: #155724;
+    }
+
+    .performance-good {
+        background: #D1ECF1;
+        color: #0C5460;
+    }
+
+    .performance-warning {
+        background: #FFF3CD;
+        color: #856404;
+    }
+
+    .performance-danger {
+        background: #F8D7DA;
+        color: #721C24;
+    }
+
+    .section-spacing {
+        margin-bottom: 35px;
+    }
+
+</style>
+
+<div class="container mt-4">
+    <!-- Enhanced Page Header -->
+    <div class="page-header">
+        <div class="d-flex justify-content-between align-items-start flex-wrap">
+            <div>
+                <h2>
+                    <i class="fas fa-chart-bar me-2"></i>
+                    Exam Results
+                </h2>
+                <div class="exam-meta">
+                    <strong>@Model.Exam.ExamName</strong>
+                    <span>•</span>
+                    <i class="fas fa-book-open me-1"></i>
+                    @Model.Exam.Course.CourseName
+                </div>
+            </div>
+            <a asp-action="Index" class="btn btn-light btn-sm mt-3 mt-md-0">
+                <i class="fas fa-arrow-left me-2"></i>Back to Exams
+            </a>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row g-4 section-spacing">
+        <div class="col-lg-3 col-md-6">
+            <div class="stat-card stat-primary">
+                <div class="stat-card-icon">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="stat-card-title">Total Assigned</div>
+                <div class="stat-card-value">@Model.TotalAssigned</div>
+            </div>
+        </div>
+
+        <div class="col-lg-3 col-md-6">
+            <div class="stat-card stat-success">
+                <div class="stat-card-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="stat-card-title">Completed</div>
+                <div class="stat-card-value">@Model.Completed</div>
+            </div>
+        </div>
+
+        <div class="col-lg-3 col-md-6">
+            <div class="stat-card @(Model.PassRate >= 70 ? "stat-success" : Model.PassRate >= 50 ? "stat-warning" : "stat-warning")">
+                <div class="stat-card-icon">
+                    <i class="fas fa-percentage"></i>
+                </div>
+                <div class="stat-card-title">Pass Rate</div>
+                <div class="stat-card-value">
+                    @Model.PassRate<span class="unit">%</span>
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="card text-center bg-success text-white">
-                <div class="card-body">
-                    <h5>Completed</h5>
-                    <h3>@Model.Completed</h3>
+
+        <div class="col-lg-3 col-md-6">
+            <div class="stat-card stat-info">
+                <div class="stat-card-icon">
+                    <i class="fas fa-chart-line"></i>
                 </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card text-center @(Model.PassRate >= 60 ? "bg-success" : "bg-warning") text-white">
-                <div class="card-body">
-                    <h5>Pass Rate</h5>
-                    <h3>@Model.PassRate<span class="fs-5">%</span></h3>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card text-center bg-info text-white">
-                <div class="card-body">
-                    <h5>Avg Score</h5>
-                    <h3>@Model.AveragePercentage<span class="fs-5">%</span></h3>
+                <div class="stat-card-title">Average Score</div>
+                <div class="stat-card-value">
+                    @Model.AveragePercentage<span class="unit">%</span>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Student Grades -->
+    <!-- Student Grades Table -->
     @if (Model.ExamGrades.Any())
     {
-        <h4>Student Grades (@Model.Completed)</h4>
-        <div class="table-responsive mb-5">
-            <table class="table table-striped table-hover">
-                <thead class="table-dark">
-                    <tr>
-                        <th>Student</th>
-                        <th>Score</th>
-                        <th>%</th>
-                        <th>Grade</th>
-                        <th>Status</th>
-                        <th>Date</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var grade in Model.ExamGrades.OrderByDescending(g => g.Percentage))
-                    {
-                        <tr>
-                            <td>@grade.Student.StudentName</td>
-                            <td><strong>@grade.TotalScore/@grade.MaxScore</strong></td>
-                            <td>@(grade.Percentage?.ToString("F1"))%</td>
-                            <td>@(grade.Grade ?? "N/A")</td>
-                            <td>
-                                <span class="badge @(grade.Status == "Pass" ? "bg-success" : "bg-danger")">
-                                    @grade.Status
-                                </span>
-                            </td>
-                            <td>@grade.GradeDate?.ToString("MMM dd")</td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
+        <div class="content-card section-spacing">
+            <div class="content-card-header">
+                <h4>
+                    <i class="fas fa-graduation-cap"></i>
+                    Student Grades (@Model.Completed)
+                </h4>
+            </div>
+            <div class="content-card-body">
+                <div class="table-responsive">
+                    <table class="table table-modern">
+                        <thead>
+                            <tr>
+                                <th><i class="fas fa-user me-2"></i>Student</th>
+                                <th><i class="fas fa-calculator me-2"></i>Score</th>
+                                <th><i class="fas fa-percent me-2"></i>Percentage</th>
+                                <th><i class="fas fa-award me-2"></i>Grade</th>
+                                <th><i class="fas fa-check-circle me-2"></i>Status</th>
+                                <th><i class="fas fa-calendar me-2"></i>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var grade in Model.ExamGrades.OrderByDescending(g => g.Percentage))
+                            {
+                                <tr>
+                                    <td>
+                                        <div class="student-name">@grade.Student.StudentName</div>
+                                    </td>
+                                    <td>
+                                        <span class="score-display">@grade.TotalScore</span>
+                                        <span class="text-muted">/ @grade.MaxScore</span>
+                                    </td>
+                                    <td>
+                                        <strong>@(grade.Percentage?.ToString("F1"))%</strong>
+                                    </td>
+                                    <td>
+                                        <span class="badge badge-custom bg-secondary">
+                                            @(grade.Grade ?? "N/A")
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="badge badge-custom @(grade.Status == "Pass" ? "bg-success" : "bg-danger")">
+                                            <i class="fas @(grade.Status == "Pass" ? "fa-check" : "fa-times") me-1"></i>
+                                            @grade.Status
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="text-muted">
+                                            @grade.GradeDate?.ToString("MMM dd, yyyy")
+                                        </span>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     }
 
-    <!-- Not Taken -->
+    <!-- Not Taken Students -->
     @if (Model.NotTaken > 0)
     {
-        <div class="alert alert-warning">
-            <h5><i class="fas fa-clock"></i> Not Taken Yet (@Model.NotTaken students)</h5>
+        <div class="alert-custom alert-warning-custom section-spacing">
+            <h5>
+                <i class="fas fa-clock me-2"></i>
+                Students Who Haven't Taken the Exam (@Model.NotTaken)
+            </h5>
             <div class="row">
                 @foreach (var student in Model.NotTakenStudents.Take(10))
                 {
-                    <div class="col-md-4 mb-2">@student.StudentName</div>
+                    <div class="col-md-4 col-sm-6 mb-2">
+                        <div class="not-taken-student">
+                            <i class="fas fa-user-clock me-2 text-warning"></i>
+                            @student.StudentName
+                        </div>
+                    </div>
                 }
                 @if (Model.NotTakenStudents.Count > 10)
                 {
-                    <div class="col-12">... and @((Model.NotTaken - 10)) more</div>
+                    <div class="col-12 mt-2">
+                        <div class="text-muted">
+                            <i class="fas fa-ellipsis-h me-2"></i>
+                            and @((Model.NotTaken - 10)) more students
+                        </div>
+                    </div>
                 }
             </div>
         </div>
     }
 
-    <!-- Hardest Questions -->
+    <!-- Question Performance Analysis -->
     @if (Model.QuestionStats.Any())
     {
-        <h4>Question Performance <small class="text-muted">(Hardest First)</small></h4>
-        <div class="table-responsive">
-            <table class="table table-hover">
-                <thead class="table-light">
-                    <tr>
-                        <th>Question</th>
-                        <th>Correct</th>
-                        <th>Attempts</th>
-                        <th>Correct %</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var q in Model.QuestionStats.Take(10))
-                    {
-                        <tr class="@(q.CorrectPercentage < 50 ? "table-danger" : q.CorrectPercentage < 70 ? "table-warning" : "")">
-                            <td>@q.QuestionText.Substring(0, Math.Min(60, q.QuestionText.Length))@(q.QuestionText.Length > 60 ? "..." : "")</td>
-                            <td>@q.CorrectAnswers/@q.TotalAttempts</td>
-                            <td>@q.TotalAttempts</td>
-                            <td>
-                                <strong>@q.CorrectPercentage<span class="fs-6">%</span></strong>
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
+        <div class="content-card">
+            <div class="content-card-header">
+                <h4>
+                    <i class="fas fa-analytics"></i>
+                    Question Performance Analysis
+                    <small class="ms-2 opacity-75">(Sorted by difficulty)</small>
+                </h4>
+            </div>
+            <div class="content-card-body">
+                <div class="table-responsive">
+                    <table class="table table-modern">
+                        <thead>
+                            <tr>
+                                <th style="width: 50%;"><i class="fas fa-question-circle me-2"></i>Question</th>
+                                <th><i class="fas fa-check-double me-2"></i>Correct</th>
+                                <th><i class="fas fa-users me-2"></i>Attempts</th>
+                                <th><i class="fas fa-chart-bar me-2"></i>Success Rate</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var q in Model.QuestionStats.Take(15))
+                            {
+                                var rowClass = q.CorrectPercentage >= 80 ? "question-row-excellent" :
+                                q.CorrectPercentage >= 70 ? "question-row-good" :
+                                q.CorrectPercentage >= 50 ? "question-row-warning" : "question-row-danger";
+
+                                var performanceClass = q.CorrectPercentage >= 80 ? "performance-excellent" :
+                                q.CorrectPercentage >= 70 ? "performance-good" :
+                                q.CorrectPercentage >= 50 ? "performance-warning" : "performance-danger";
+
+                                <tr class="@rowClass">
+                                    <td>
+                                        <div class="question-text">
+                                            @q.QuestionText.Substring(0, Math.Min(80, q.QuestionText.Length))@(q.QuestionText.Length > 80 ? "..." : "")
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <strong>@q.CorrectAnswers</strong>
+                                        <span class="text-muted">/ @q.TotalAttempts</span>
+                                    </td>
+                                    <td>
+                                        <span class="badge badge-custom bg-info">
+                                            @q.TotalAttempts
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex align-items-center gap-2">
+                                            <strong style="font-size: 1.1rem;">@q.CorrectPercentage%</strong>
+                                            <span class="performance-badge @performanceClass">
+                                                @if (q.CorrectPercentage >= 80)
+                                                {
+                                                    <i class="fas fa-smile"></i>
+                                                    <text> Excellent</text>
+                                                }
+                                                else if (q.CorrectPercentage >= 70)
+                                                {
+                                                    <i class="fas fa-thumbs-up"></i>
+                                                    <text> Good</text>
+                                                }
+                                                else if (q.CorrectPercentage >= 50)
+                                                {
+                                                    <i class="fas fa-meh"></i>
+                                                    <text> Moderate</text>
+                                                }
+                                                else
+                                                {
+                                                    <i class="fas fa-frown"></i>
+                                                    <text> Difficult</text>
+                                                }
+                                            </span>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     }
 </div>
